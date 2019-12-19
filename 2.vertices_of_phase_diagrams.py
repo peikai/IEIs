@@ -24,7 +24,7 @@ def drop_subset_chemsys(chemsys_series):
     return chemsys_distinct
        
 
-chemsys_all = pd.read_csv('tables/Na/Na_all.csv', usecols=['pretty_formula'])
+chemsys_all = pd.read_csv('tables/K/K_all.csv', usecols=['pretty_formula'])
 
 # join element in chemsys str, then drop duplicated chemsys
 chemsys_all= chemsys_all.pretty_formula.apply(lambda x : '-'.join([e.name for e in Composition(x).elements]))

@@ -1,8 +1,8 @@
 import pandas as pd
 from pymatgen import MPRester
 
-entry_id_list = pd.read_csv('tables/Na/Na_candidate_ids.csv')['entry_id'].to_list()
-formula_list = pd.read_csv('tables/Na/Na_candidate_names.csv')['pretty_formula'].to_list()
+entry_id_list = pd.read_csv('tables/K/K_candidate_ids.csv')['entry_id'].to_list()
+formula_list = pd.read_csv('tables/K/K_candidate_names.csv')['pretty_formula'].to_list()
 
 with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
     # entry id is an alias of task id
@@ -21,6 +21,6 @@ candidates_all_dataframe.sort_values(by=['pretty_formula'], inplace=True)
 candidates_calc_dataframe.sort_values(by=['pretty_formula'], inplace=True)
 candidates_exp_dataframe.sort_values(by=['pretty_formula'], inplace=True)
 
-candidates_all_dataframe.to_csv('Na_candidates_all.csv', index=False)
-candidates_calc_dataframe.to_csv('Na_candidates_calc.csv', index=False)
-candidates_exp_dataframe.to_csv('Na_candidates_exp.csv', index=False)
+candidates_all_dataframe.to_csv('K_candidates_all.csv', index=False)
+candidates_calc_dataframe.to_csv('K_candidates_calc.csv', index=False)
+candidates_exp_dataframe.to_csv('K_candidates_exp.csv', index=False)

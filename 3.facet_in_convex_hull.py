@@ -27,7 +27,7 @@ def tieline_phases(phaseDiagram, key_element):
     return(tieline_phase_ids, tieline_phase_name)
 
 
-chemsys_list = pd.read_csv('tables/Na/chemsys_all.csv').chemsys.to_list()
+chemsys_list = pd.read_csv('tables/K/chemsys_all.csv').chemsys.to_list()
 candidate_id_set = set()
 candidate_name_set = set()
 
@@ -38,11 +38,11 @@ with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
         # entries = mpr.get_entries({'chemsys':{'$in':chemsys_list}})
 
         phaseDiagram = PhaseDiagram(entries)
-        id_list, formula_list = tieline_phases(phaseDiagram, key_element='Na')
+        id_list, formula_list = tieline_phases(phaseDiagram, key_element='K')
         candidate_id_set.update(id_list)
         candidate_name_set.update(formula_list)
 
 candidate_id_dataframe = pd.DataFrame(candidate_id_set, columns=['entry_id'])
 candidate_name_dataframe = pd.DataFrame(candidate_name_set, columns=['pretty_formula'])
-candidate_id_dataframe.to_csv('Na_candidate_ids.csv', index=False)
-candidate_name_dataframe.to_csv('Na_candidate_names.csv', index=False)
+candidate_id_dataframe.to_csv('K_candidate_ids.csv', index=False)
+candidate_name_dataframe.to_csv('K_candidate_names.csv', index=False)
