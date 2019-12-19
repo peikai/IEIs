@@ -12,7 +12,7 @@ def drop_subset_chemsys(chemsys_series):
     chemsys_list = chemsys_series.to_list()
     # prepare a dataframe to store other info
     chemsys_dataframe = pd.DataFrame(chemsys_series, columns=['pretty_formula', 'distinct'])
-    # like, Li-Tl is not a subset of any chemsys, then store Li-Tl
+    # like, A-B is not a subset of any chemsys, then store A-B
     for index, row in chemsys_series.iteritems():
         boolean =  [row.issubset(chemsys) for chemsys in chemsys_list]
         # count including itself
@@ -24,7 +24,7 @@ def drop_subset_chemsys(chemsys_series):
     return chemsys_distinct
        
 
-chemsys_all = pd.read_csv('tables/Li_all.csv', usecols=['pretty_formula'])
+chemsys_all = pd.read_csv('tables/Na/Na_all.csv', usecols=['pretty_formula'])
 
 # join element in chemsys str, then drop duplicated chemsys
 chemsys_all= chemsys_all.pretty_formula.apply(lambda x : '-'.join([e.name for e in Composition(x).elements]))
