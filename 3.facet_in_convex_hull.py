@@ -32,8 +32,8 @@ candidate_id_set = set()
 candidate_name_set = set()
 
 with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
-    # candidates = mpr.query(criteria={'pretty_formula':{'$in':formula_list}, 'band_gap': {'$lte': 2}}, properties=['material_id', 'pretty_formula'])
     for chemsys in tqdm(chemsys_list, total=len(chemsys_list)):
+        # entries = mpr.get_entries_in_chemsys(chemsys)
         entries = mpr.get_entries_in_chemsys(chemsys, compatible_only=False)
         # entries = mpr.get_entries({'chemsys':{'$in':chemsys_list}})
 
