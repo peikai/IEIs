@@ -12,7 +12,7 @@ with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
 candidates_all_dataframe = pd.DataFrame(candidates_all)
 candidates_calc_dataframe = pd.DataFrame(candidates_calc)
 
-candidates_all_dataframe = candidates_all_dataframe.loc[(candidates_all_dataframe['e_above_hull']==0) | (candidates_all_dataframe['theoretical'] == True)]
+candidates_all_dataframe = candidates_all_dataframe.loc[(candidates_all_dataframe['e_above_hull']==0) | (candidates_all_dataframe['theoretical'] == False)]
 candidates_all_dataframe = candidates_all_dataframe.loc[(candidates_all_dataframe['band_gap']>=3.0)]
 
 candidates_exp_dataframe = candidates_all_dataframe.loc[(candidates_all_dataframe['theoretical'] == False)]
@@ -20,6 +20,10 @@ candidates_exp_dataframe = candidates_all_dataframe.loc[(candidates_all_datafram
 candidates_all_dataframe.sort_values(by=['pretty_formula'], inplace=True)
 candidates_calc_dataframe.sort_values(by=['pretty_formula'], inplace=True)
 candidates_exp_dataframe.sort_values(by=['pretty_formula'], inplace=True)
+
+# candidates_all_dataframe.reset_index(inplace=True)
+# candidates_calc_dataframe.reset_index(inplace=True)
+# candidates_exp_dataframe.reset_index(inplace=True)
 
 candidates_all_dataframe.to_csv('K_candidates_all.csv', index=False)
 candidates_calc_dataframe.to_csv('K_candidates_calc.csv', index=False)
