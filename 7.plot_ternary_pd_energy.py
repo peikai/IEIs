@@ -22,19 +22,15 @@ def merge_facet(convexhull):
         facet_array = convexhull.simplices[index_list]
         facet_merged = np.unique(facet_array)
         facet_points = convexhull.points[facet_merged]
-        # # remove points located within hyperplane
-        # hull_new = ConvexHull(facet_points)
-        # hull_vertices = hull_new.vertices
-        # facet_points = facet_points[hull_vertices]
         facet_list.append(facet_points)
         
     return(facet_list)
 
 
-def plotly_polyhedron(polyhedron, color):
+def plotly_polyhedron(polyhedron):
     polyhedron= np.vstack(polyhedron)
     x, y, z = [polyhedron[:,0], polyhedron[:,1], polyhedron[:,2]]
-    convex_polyhedon = dict(x=x, y=y, z=z, type= 'mesh3d', alphahull=0, opacity=0.1, color=color)
+    convex_polyhedon = dict(x=x, y=y, z=z, type= 'mesh3d', alphahull=0, opacity=0.1, color="rgb(106, 90, 205)")
     return(convex_polyhedon)
 
 def plotly_lines(line_nodes):
@@ -73,10 +69,9 @@ qhull_data = pd.qhull_data
 qhull_data = np.delete(qhull_data, -1, axis=0)
 
 facet_vertices = pd.facets
-facet_cord = [qhull_data[each][:, 0:2] for each in facet_vertices] # multi-level array, contains duplicates vertices
-# add z=0, convert 2d to 3d
-facet_cord_3d = [np.insert(facet, 2, values=0, axis=1) for facet in facet_cord]
+
 # qhull_cord = np.vstack([triangular_coord(each) for each in qhull_cord])
+facet_cord = [qhull_data[each] for each in facet_vertices] # multi-level array, contains duplicates vertices
 
 # do not need duplicated nodes using for construct convex hull
 stable_nodes = np.unique(facet_vertices)
@@ -88,40 +83,56 @@ nodes_bottom = np.insert(stable_cord, 2, values=0, axis=1)
 # reshape array (3,) to (3,1)
 nodes_top_z = stable_energy[:,np.newaxis]
 nodes_top = np.insert(stable_cord, [2], values=nodes_top_z, axis=1)
-
 # merge two parts of nodes
 nodes_array = np.append(nodes_bottom, nodes_top, axis=0)
+
 data = []
 
-for facet in facet_cord_3d:
+# plot scatters
+scatter_vertices = dict(
+    mode = "markers",
+    name = 'nodes',
+    type = "scatter3d",
+    x = nodes_bottom[:,0], y = nodes_bottom[:,1], z = nodes_bottom[:,2],
+    marker = dict(size=8, color="rgb(50,50,50)")
+)
+data.append(scatter_vertices)
+
+scatter_vertices = dict(
+    mode = "markers",
+    name = 'nodes',
+    type = "scatter3d",
+    x = nodes_top[:,0], y = nodes_top[:,1], z = nodes_top[:,2],
+    marker = dict(size=8, color="rgb(106, 90, 205)")
+)
+data.append(scatter_vertices)
+
+# plot edges
+for facet in facet_cord:
+    # plot facets on the top
+    convex_lines = plotly_lines(facet)
+    data.append(convex_lines)
+    # change z to zero, project facets to bottom
+    facet[:,2] = 0
+    # plot facets projections
     convex_lines = plotly_lines(facet)
     data.append(convex_lines)
 
-polyhedron = plotly_polyhedron(nodes_array, color="rgb(106, 90, 205)")
+# plot pillars
+for pillar in zip(nodes_bottom[-3:], nodes_top[-3:]):
+    convex_lines = plotly_lines(pillar)
+    data.append(convex_lines)
+
+# plot surfaces
+polyhedron = plotly_polyhedron(nodes_array)
 data.append(polyhedron)
 
-# hull = ConvexHull(nodes_array)
-# # merge triangle facets which belongs in the same plane to rectangle facets.
-# facet_list = merge_facet(hull)
-
-# for facet_vertices in facet_list:
-#     # line_nodes = nodes_array[face_simplices]
-#     edge = plotly_lines(facet_vertices)
-#     data.append(edge)
 
 # nodes_index = np.array(facet_vertices).flatten()
 # nodes_index = np.unique(nodes_index)
 # nodes_name = np.array([entries[each].name for each in nodes_index])
 # nodes_array = np.vstack([qhull_cord[each] for each in nodes_index])
 
-scatter_vertices = dict(
-    mode = "markers",
-    name = 'nodes',
-    type = "scatter3d",
-    x = nodes_array[:,0], y = nodes_array[:,1], z = nodes_array[:,2],
-    marker = dict(size=8, color="rgb(106, 90, 205)")
-)
-data.append(scatter_vertices)
 
 layout = dict(
     # title = '<b>Quaternary Phase Diagram</b>',
@@ -138,9 +149,6 @@ layout = dict(
     # autosize = True
     # annotations = make_annotations(nodes_array, v_label),
 )
-
-# fig = go.Figure(data=[go.Mesh3d(z=polyhedron_data[:,2], x=polyhedron_data[:,0], y=polyhedron_data[:,1],opacity=0.8)])
-# fig = go.Figure(data=[go.Surface(color=polyhedron_data[:,2], x=polyhedron_data[:,0], y=polyhedron_data[:,1],opacity=0.2)])
 
 fig = dict(data=data, layout=layout)
 plotly.io.write_image(fig, 'ternary_energy.png', scale=8)
