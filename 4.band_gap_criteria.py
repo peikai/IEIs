@@ -6,8 +6,8 @@ formula_list = pd.read_csv('tables/K/K_candidate_names.csv')['pretty_formula'].t
 
 with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
     # entry id is an alias of task id
-    candidates_all = mpr.query(criteria={'pretty_formula':{'$in': formula_list}}, properties=['material_id', 'pretty_formula', 'band_gap', 'e_above_hull', 'theoretical'])
-    candidates_calc = mpr.query(criteria={'task_id':{'$in': entry_id_list}, 'band_gap':{'$gte':3.0}}, properties=['material_id', 'pretty_formula', 'band_gap', 'e_above_hull', 'theoretical'])
+    candidates_all = mpr.query(criteria={'pretty_formula':{'$in': formula_list}}, properties=['material_id', 'pretty_formula', 'band_gap', 'e_above_hull', 'theoretical', 'icsd_ids'])
+    candidates_calc = mpr.query(criteria={'task_id':{'$in': entry_id_list}, 'band_gap':{'$gte':3.0}}, properties=['material_id', 'pretty_formula', 'band_gap', 'e_above_hull', 'theoretical', 'icsd_ids'])
 
 candidates_all_dataframe = pd.DataFrame(candidates_all)
 candidates_calc_dataframe = pd.DataFrame(candidates_calc)
