@@ -19,30 +19,43 @@ def tieline_phases(phaseDiagram, key_element):
 
     # find other phases in those facets
     vertice_array = np.array(facet_list).flatten()
-    tieline_phase_ids = list(set(phaseDiagram.qhull_entries[each].entry_id for each in vertice_array))
-    tieline_phase_name = list(set(phaseDiagram.qhull_entries[each].name for each in vertice_array))
+    tieline_entries_dict = [{'entry_id':phaseDiagram.qhull_entries[each].entry_id, 'pretty_formula':phaseDiagram.qhull_entries[each].name} for each in vertice_array]
     # # lithium: mp-135
     # tieline_phases.remove('mp-135')
 
-    return(tieline_phase_ids, tieline_phase_name)
+    return(tieline_entries_dict)
 
 
-chemsys_list = pd.read_csv('tables/K/chemsys_all.csv').chemsys.to_list()
-candidate_id_set = set()
-candidate_name_set = set()
+chemsys_list = pd.read_csv('tables/Li/chemsys_all.csv').chemsys.to_list()
+tieline_entries = list()
+# tieline_unique_ids = set()
+# tieline_unique_names = set()
 
 with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
     for chemsys in tqdm(chemsys_list, total=len(chemsys_list)):
-        # entries = mpr.get_entries_in_chemsys(chemsys)
-        entries = mpr.get_entries_in_chemsys(chemsys, compatible_only=False)
+        entries = mpr.get_entries_in_chemsys(chemsys)
+        # entries = mpr.get_entries_in_chemsys(chemsys, compatible_only=False)
         # entries = mpr.get_entries({'chemsys':{'$in':chemsys_list}})
 
         phaseDiagram = PhaseDiagram(entries)
-        id_list, formula_list = tieline_phases(phaseDiagram, key_element='K')
-        candidate_id_set.update(id_list)
-        candidate_name_set.update(formula_list)
 
-candidate_id_dataframe = pd.DataFrame(candidate_id_set, columns=['entry_id'])
-candidate_name_dataframe = pd.DataFrame(candidate_name_set, columns=['pretty_formula'])
-candidate_id_dataframe.to_csv('K_candidate_ids.csv', index=False)
-candidate_name_dataframe.to_csv('K_candidate_names.csv', index=False)
+        tieline_entries_dict = tieline_phases(phaseDiagram, key_element='Li')
+        # tieline_ids = tieline_entries_dict.keys()
+        # tieline_names = tieline_entries_dict.values()
+        tieline_entries.extend(tieline_entries_dict)
+        # tieline_unique_entries.update(tieline_entries_dict)
+        # tieline_unique_ids.update(tieline_ids)
+        # tieline_unique_names.update(tieline_names)
+        
+tieline_dataframe = pd.DataFrame(tieline_entries)
+
+# tieline_unique_id_dataframe = pd.DataFrame(tieline_unique_ids, columns=['entry_id'])
+# tieline_unique_name_dataframe = pd.DataFrame(tieline_unique_names, columns=['pretty_formula'])
+
+tieline_dataframe.to_csv('Li_tieline.csv', index=False)
+
+tieline_dataframe.drop_duplicates('entry_id').to_csv('Li_tieline_ids.csv', index=False)
+# tieline_unique_id_dataframe.to_csv('K_tieline_ids.csv', index=False)
+
+tieline_dataframe.drop_duplicates('pretty_formula').to_csv('Li_tieline_names.csv', index=False)
+# tieline_unique_name_dataframe.to_csv('K_tieline_names.csv', index=False)
