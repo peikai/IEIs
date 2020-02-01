@@ -28,34 +28,21 @@ def tieline_phases(phaseDiagram, key_element):
 
 chemsys_list = pd.read_csv('tables/Li/chemsys_all.csv').chemsys.to_list()
 tieline_entries = list()
-# tieline_unique_ids = set()
-# tieline_unique_names = set()
 
 with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
     for chemsys in tqdm(chemsys_list, total=len(chemsys_list)):
         entries = mpr.get_entries_in_chemsys(chemsys)
-        # entries = mpr.get_entries_in_chemsys(chemsys, compatible_only=False)
-        # entries = mpr.get_entries({'chemsys':{'$in':chemsys_list}})
-
         phaseDiagram = PhaseDiagram(entries)
 
         tieline_entries_dict = tieline_phases(phaseDiagram, key_element='Li')
-        # tieline_ids = tieline_entries_dict.keys()
-        # tieline_names = tieline_entries_dict.values()
         tieline_entries.extend(tieline_entries_dict)
-        # tieline_unique_entries.update(tieline_entries_dict)
-        # tieline_unique_ids.update(tieline_ids)
-        # tieline_unique_names.update(tieline_names)
         
 tieline_dataframe = pd.DataFrame(tieline_entries)
 
-# tieline_unique_id_dataframe = pd.DataFrame(tieline_unique_ids, columns=['entry_id'])
-# tieline_unique_name_dataframe = pd.DataFrame(tieline_unique_names, columns=['pretty_formula'])
-
 tieline_dataframe.to_csv('Li_tieline.csv', index=False)
 
+tieline_dataframe.drop_duplicates().to_csv('Li_tieline_distinct.csv', index=False)
+
 tieline_dataframe.drop_duplicates('entry_id').to_csv('Li_tieline_ids.csv', index=False)
-# tieline_unique_id_dataframe.to_csv('K_tieline_ids.csv', index=False)
 
 tieline_dataframe.drop_duplicates('pretty_formula').to_csv('Li_tieline_names.csv', index=False)
-# tieline_unique_name_dataframe.to_csv('K_tieline_names.csv', index=False)
