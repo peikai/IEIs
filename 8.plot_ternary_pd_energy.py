@@ -53,117 +53,125 @@ def tieline_phases(phaseDiagram, key_element):
     return(facet_list)
 
 
-# chemsys = 'Ca-N-Li-Al'
-# chemsys = 'Li-Fe-O'
-# chemsys = 'N-Li-Al'
-chemsys = 'Li-Lu-O'
+def plot_convex_hull(chemsys):
+    with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
+        entries = mpr.get_entries_in_chemsys(chemsys)
 
-with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
-    entries = mpr.get_entries_in_chemsys(chemsys)
+    pd = PhaseDiagram(entries)
 
-pd = PhaseDiagram(entries)
+    # different length but not at all
+    entries = pd.qhull_entries
+    qhull_data = pd.qhull_data
+    qhull_data = np.delete(qhull_data, -1, axis=0)
 
-# different length but not at all
-entries = pd.qhull_entries
-qhull_data = pd.qhull_data
-qhull_data = np.delete(qhull_data, -1, axis=0)
+    facet_vertices = pd.facets
 
-facet_vertices = pd.facets
+    # qhull_cord = np.vstack([triangular_coord(each) for each in qhull_cord])
+    facet_cord = [qhull_data[each] for each in facet_vertices] # multi-level array, contains duplicates vertices
 
-# qhull_cord = np.vstack([triangular_coord(each) for each in qhull_cord])
-facet_cord = [qhull_data[each] for each in facet_vertices] # multi-level array, contains duplicates vertices
+    # do not need duplicated nodes using for construct convex hull
+    stable_nodes = np.unique(facet_vertices)
+    stable_cord = qhull_data[stable_nodes][:,0:2]
+    stable_energy = qhull_data[stable_nodes][:,2]
 
-# do not need duplicated nodes using for construct convex hull
-stable_nodes = np.unique(facet_vertices)
-stable_cord = qhull_data[stable_nodes][:,0:2]
-stable_energy = qhull_data[stable_nodes][:,2]
+    # nodes of projections of convex hull construction
+    nodes_bottom = np.insert(stable_cord, 2, values=0, axis=1)
+    # reshape array (3,) to (3,1)
+    nodes_top_z = stable_energy[:,np.newaxis]
+    nodes_top = np.insert(stable_cord, [2], values=nodes_top_z, axis=1)
+    # merge two parts of nodes
+    nodes_array = np.append(nodes_bottom, nodes_top, axis=0)
 
-# nodes of projections of convex hull construction
-nodes_bottom = np.insert(stable_cord, 2, values=0, axis=1)
-# reshape array (3,) to (3,1)
-nodes_top_z = stable_energy[:,np.newaxis]
-nodes_top = np.insert(stable_cord, [2], values=nodes_top_z, axis=1)
-# merge two parts of nodes
-nodes_array = np.append(nodes_bottom, nodes_top, axis=0)
+    # unstable entries
+    qhull_data_dataframe = pandas.DataFrame(qhull_data)
+    qhull_data_dataframe = qhull_data_dataframe[qhull_data_dataframe.loc[:,2] < 1e-11]
+    unstable_array = qhull_data_dataframe.append(pandas.DataFrame(nodes_top)).drop_duplicates(keep=False).to_numpy()
 
-# unstable entries
-qhull_data_dataframe = pandas.DataFrame(qhull_data)
-qhull_data_dataframe = qhull_data_dataframe[qhull_data_dataframe.loc[:,2] < 1e-11]
-unstable_array = qhull_data_dataframe.append(pandas.DataFrame(nodes_top)).drop_duplicates(keep=False).to_numpy()
+    data = []
 
-data = []
+    # plot scatters
+    scatter_vertices = dict(
+        mode = "markers",
+        name = 'nodes',
+        type = "scatter3d",
+        x = nodes_bottom[:,0], y = nodes_bottom[:,1], z = nodes_bottom[:,2],
+        marker = dict(size=8, color="rgb(50,50,50)")
+    )
+    data.append(scatter_vertices)
 
-# plot scatters
-scatter_vertices = dict(
-    mode = "markers",
-    name = 'nodes',
-    type = "scatter3d",
-    x = nodes_bottom[:,0], y = nodes_bottom[:,1], z = nodes_bottom[:,2],
-    marker = dict(size=8, color="rgb(50,50,50)")
-)
-data.append(scatter_vertices)
+    scatter_vertices = dict(
+        mode = "markers",
+        name = 'nodes',
+        type = "scatter3d",
+        x = nodes_top[:,0], y = nodes_top[:,1], z = nodes_top[:,2],
+        marker = dict(size=8, color="rgb(106, 90, 205)")
+    )
+    data.append(scatter_vertices)
 
-scatter_vertices = dict(
-    mode = "markers",
-    name = 'nodes',
-    type = "scatter3d",
-    x = nodes_top[:,0], y = nodes_top[:,1], z = nodes_top[:,2],
-    marker = dict(size=8, color="rgb(106, 90, 205)")
-)
-data.append(scatter_vertices)
+    scatter_vertices = dict(
+        mode = "markers",
+        name = 'nodes',
+        type = "scatter3d",
+        x = unstable_array[:,0], y = unstable_array[:,1], z = unstable_array[:,2],
+        marker = dict(size=8, color="rgb(190, 190, 190)")
+    )
+    data.append(scatter_vertices)
 
-scatter_vertices = dict(
-    mode = "markers",
-    name = 'nodes',
-    type = "scatter3d",
-    x = unstable_array[:,0], y = unstable_array[:,1], z = unstable_array[:,2],
-    marker = dict(size=8, color="rgb(190, 190, 190)")
-)
-data.append(scatter_vertices)
+    # plot edges
+    for facet in facet_cord:
+        # plot facets on the top
+        convex_lines = plotly_lines(facet)
+        data.append(convex_lines)
+        # change z to zero, project facets to bottom
+        facet[:,2] = 0
+        # plot facets projections
+        convex_lines = plotly_lines(facet)
+        data.append(convex_lines)
 
-# plot edges
-for facet in facet_cord:
-    # plot facets on the top
-    convex_lines = plotly_lines(facet)
-    data.append(convex_lines)
-    # change z to zero, project facets to bottom
-    facet[:,2] = 0
-    # plot facets projections
-    convex_lines = plotly_lines(facet)
-    data.append(convex_lines)
+    # plot pillars
+    for pillar in zip(nodes_bottom[-3:], nodes_top[-3:]):
+        convex_lines = plotly_lines(pillar)
+        data.append(convex_lines)
 
-# plot pillars
-for pillar in zip(nodes_bottom[-3:], nodes_top[-3:]):
-    convex_lines = plotly_lines(pillar)
-    data.append(convex_lines)
+    # plot surfaces
+    polyhedron = plotly_polyhedron(nodes_array)
+    data.append(polyhedron)
 
-# plot surfaces
-polyhedron = plotly_polyhedron(nodes_array)
-data.append(polyhedron)
+    # nodes_index = np.array(facet_vertices).flatten()
+    # nodes_index = np.unique(nodes_index)
+    # nodes_name = np.array([entries[each].name for each in nodes_index])
+    # nodes_array = np.vstack([qhull_cord[each] for each in nodes_index])
 
+    layout = dict(
+        # title = '<b>Quaternary Phase Diagram</b>',
+        title_x = 0.5,
+        scene = dict(xaxis = dict(zeroline=False, showticklabels=False, showgrid=False, showline=False, title = {'text':''}, visible=False),
+                    yaxis = dict(zeroline=False, showticklabels=False, showgrid=False, showline=False, title = {'text':''}, visible=False),
+                    # visible=False, showaxeslabels=False,
+                    zaxis = dict(zeroline=False, showticklabels=False, showgrid=False, showline=False, title = {'text':''}, visible=False),
+                    camera= dict(eye = dict(x=2.0, y=1.0, z=0.5)),
+                    ),
+        showlegend=False,
+        # width = 1000,
+        # height = 1000,
+        # autosize = True
+        # annotations = make_annotations(nodes_array, v_label),
+    )
 
-# nodes_index = np.array(facet_vertices).flatten()
-# nodes_index = np.unique(nodes_index)
-# nodes_name = np.array([entries[each].name for each in nodes_index])
-# nodes_array = np.vstack([qhull_cord[each] for each in nodes_index])
+    fig = dict(data=data, layout=layout)
+    plotly.io.write_image(fig, 'graph/{fn}.png'.format(fn=chemsys), scale=8)
+    plotly.offline.plot(fig, filename='graph/{fn}.html'.format(fn=chemsys), show_link=False, auto_open=False)
 
+def main():
+    pretty_formula_list = pandas.read_csv('tables/Li/Li_candidates_calc.csv').pretty_formula.to_list()
+    chemsys_list = [Composition(each).chemical_system+'-Li' for each in pretty_formula_list if len(Composition(each).elements)==2]
+    for i, chemsys in enumerate(chemsys_list):
+        plot_convex_hull(chemsys)
+        print('{I}/{L}'.format(I=i+1, L=len(chemsys_list)))
+    
+    # chemsys = 'Li-Lu-O'
+    # plot_convex_hull(chemsys)
 
-layout = dict(
-    # title = '<b>Quaternary Phase Diagram</b>',
-    title_x = 0.5,
-    scene = dict(xaxis = dict(zeroline=False, showticklabels=False, showgrid=False, showline=False, title = {'text':''}, visible=False),
-                 yaxis = dict(zeroline=False, showticklabels=False, showgrid=False, showline=False, title = {'text':''}, visible=False),
-                # visible=False, showaxeslabels=False,
-                 zaxis = dict(zeroline=False, showticklabels=False, showgrid=False, showline=False, title = {'text':''}, visible=False),
-                 camera= dict(eye = dict(x=2.0, y=1.0, z=0.5)),
-                 ),
-    showlegend=False,
-    # width = 1000,
-    # height = 1000,
-    # autosize = True
-    # annotations = make_annotations(nodes_array, v_label),
-)
+if __name__ == "__main__":
+    main()
 
-fig = dict(data=data, layout=layout)
-plotly.io.write_image(fig, 'ternary_energy.png', scale=8)
-plotly.offline.plot(fig, filename='{fn}.html'.format(fn='ternary_energy'), show_link=False)
