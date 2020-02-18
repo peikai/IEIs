@@ -30,14 +30,14 @@ def merge_facet(convexhull):
 def plotly_polyhedron(polyhedron):
     polyhedron= np.vstack(polyhedron)
     x, y, z = [polyhedron[:,0], polyhedron[:,1], polyhedron[:,2]]
-    convex_polyhedon = dict(x=x, y=y, z=z, type= 'mesh3d', alphahull=0, opacity=0.1, color="rgb(106, 90, 205)")
+    convex_polyhedon = dict(x=x, y=y, z=z, type= 'mesh3d', alphahull=0, opacity=0.2, color="rgb(106, 90, 205)")
     return(convex_polyhedon)
 
-def plotly_lines(line_nodes):
+def plotly_lines(line_nodes, dash):
     # To make lines a loop.
     line_nodes = np.vstack((line_nodes, line_nodes[0]))
     x, y, z = [line_nodes[:,0], line_nodes[:,1], line_nodes[:,2]]
-    lines=dict(x=x, y=y, z=z, mode='lines', type='scatter3d', showlegend=False, line=dict(color= 'rgb(50,50,50)', width=3))
+    lines=dict(x=x, y=y, z=z, mode='lines', type='scatter3d', showlegend=False, line=dict(dash=dash, color= 'rgb(50,50,50)', width=3))
     return(lines)
 
 def tieline_phases(phaseDiagram, key_element):
@@ -113,28 +113,28 @@ def plot_convex_hull(chemsys):
         name = 'nodes',
         type = "scatter3d",
         x = unstable_array[:,0], y = unstable_array[:,1], z = unstable_array[:,2],
-        marker = dict(size=8, color="rgb(190, 190, 190)")
+        marker = dict(size=8, color="rgb(169, 169, 169)")
     )
     data.append(scatter_vertices)
 
     # plot edges
     for facet in facet_cord:
         # plot facets on the top
-        convex_lines = plotly_lines(facet)
+        convex_lines = plotly_lines(facet, dash='solid')
         data.append(convex_lines)
         # change z to zero, project facets to bottom
         facet[:,2] = 0
         # plot facets projections
-        convex_lines = plotly_lines(facet)
+        convex_lines = plotly_lines(facet, dash='solid')
         data.append(convex_lines)
 
     # plot pillars
     for pillar in zip(nodes_bottom[-3:], nodes_top[-3:]):
-        convex_lines = plotly_lines(pillar)
+        convex_lines = plotly_lines(pillar, dash='longdash')
         data.append(convex_lines)
 
     # plot surfaces
-    polyhedron = plotly_polyhedron(nodes_array)
+    polyhedron = plotly_polyhedron(nodes_top)
     data.append(polyhedron)
 
     # nodes_index = np.array(facet_vertices).flatten()
@@ -159,18 +159,18 @@ def plot_convex_hull(chemsys):
     )
 
     fig = dict(data=data, layout=layout)
-    plotly.io.write_image(fig, 'graph/{fn}.png'.format(fn=chemsys), scale=8)
-    plotly.offline.plot(fig, filename='graph/{fn}.html'.format(fn=chemsys), show_link=False, auto_open=False)
+    plotly.io.write_image(fig, '{fn}.png'.format(fn=chemsys), scale=8)
+    plotly.offline.plot(fig, filename='{fn}.html'.format(fn=chemsys), show_link=False, auto_open=False)
 
 def main():
-    pretty_formula_list = pandas.read_csv('tables/Li/Li_candidates_calc.csv').pretty_formula.to_list()
-    chemsys_list = [Composition(each).chemical_system+'-Li' for each in pretty_formula_list if len(Composition(each).elements)==2]
-    for i, chemsys in enumerate(chemsys_list):
-        plot_convex_hull(chemsys)
-        print('{I}/{L}'.format(I=i+1, L=len(chemsys_list)))
+    # pretty_formula_list = pandas.read_csv('tables/Li/Li_candidates_calc.csv').pretty_formula.to_list()
+    # chemsys_list = [Composition(each).chemical_system+'-Li' for each in pretty_formula_list if len(Composition(each).elements)==2]
+    # for i, chemsys in enumerate(chemsys_list):
+    #     plot_convex_hull(chemsys)
+    #     print('{I}/{L}'.format(I=i+1, L=len(chemsys_list)))
     
-    # chemsys = 'Li-Lu-O'
-    # plot_convex_hull(chemsys)
+    chemsys = 'O-Lu-Li'
+    plot_convex_hull(chemsys)
 
 if __name__ == "__main__":
     main()
