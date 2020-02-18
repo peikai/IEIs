@@ -37,7 +37,7 @@ def plotly_lines(line_nodes, dash):
     # To make lines a loop.
     line_nodes = np.vstack((line_nodes, line_nodes[0]))
     x, y, z = [line_nodes[:,0], line_nodes[:,1], line_nodes[:,2]]
-    lines=dict(x=x, y=y, z=z, mode='lines', type='scatter3d', showlegend=False, line=dict(dash=dash, color= 'rgb(50,50,50)', width=3))
+    lines=dict(x=x, y=y, z=z, mode='lines', type='scatter3d', showlegend=False, line=dict(dash=dash, color= 'rgb(50,50,50)', width=5))
     return(lines)
 
 def tieline_phases(phaseDiagram, key_element):
