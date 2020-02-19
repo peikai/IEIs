@@ -33,11 +33,11 @@ def plotly_polyhedron(polyhedron):
     convex_polyhedon = dict(x=x, y=y, z=z, type= 'mesh3d', alphahull=0, opacity=0.2, color="rgb(106, 90, 205)")
     return(convex_polyhedon)
 
-def plotly_lines(line_nodes, dash):
+def plotly_lines(line_nodes, dash, width):
     # To make lines a loop.
     line_nodes = np.vstack((line_nodes, line_nodes[0]))
     x, y, z = [line_nodes[:,0], line_nodes[:,1], line_nodes[:,2]]
-    lines=dict(x=x, y=y, z=z, mode='lines', type='scatter3d', showlegend=False, line=dict(dash=dash, color= 'rgb(50,50,50)', width=5))
+    lines=dict(x=x, y=y, z=z, mode='lines', type='scatter3d', showlegend=False, line=dict(dash=dash, color= 'rgb(50,50,50)', width=width))
     return(lines)
 
 def tieline_phases(phaseDiagram, key_element):
@@ -59,15 +59,20 @@ def plot_convex_hull(chemsys):
 
     pd = PhaseDiagram(entries)
 
-    # different length but not at all
+    # get original qhull data, simplices
     entries = pd.qhull_entries
     qhull_data = pd.qhull_data
-    qhull_data = np.delete(qhull_data, -1, axis=0)
+    qhull_simplices = get_facets(qhull_data)
+    simplices_cord = [qhull_data[each] for each in qhull_simplices]
 
+    # simplices without irrelevant facets
     facet_vertices = pd.facets
 
-    # qhull_cord = np.vstack([triangular_coord(each) for each in qhull_cord])
-    facet_cord = [qhull_data[each] for each in facet_vertices] # multi-level array, contains duplicates vertices
+    # an extra point exists in original pd.qhull_data
+    qhull_data = np.delete(qhull_data, -1, axis=0)
+
+    # multi-level array, contains duplicates vertices
+    facet_cord = [qhull_data[each] for each in facet_vertices]
 
     # do not need duplicated nodes using for construct convex hull
     stable_nodes = np.unique(facet_vertices)
@@ -79,8 +84,11 @@ def plot_convex_hull(chemsys):
     # reshape array (3,) to (3,1)
     nodes_top_z = stable_energy[:,np.newaxis]
     nodes_top = np.insert(stable_cord, [2], values=nodes_top_z, axis=1)
-    # merge two parts of nodes
-    nodes_array = np.append(nodes_bottom, nodes_top, axis=0)
+
+    # merge nodes_top with nodes_bottom
+    # nodes_hull = np.append(nodes_bottom, nodes_top, axis=0)
+    # or use nodes of convex hull
+    nodes_hull = pd.qhull_data
 
     # unstable entries
     qhull_data_dataframe = pandas.DataFrame(qhull_data)
@@ -117,15 +125,20 @@ def plot_convex_hull(chemsys):
     )
     data.append(scatter_vertices)
 
-    # plot edges
+    # plot edges of facets
     for facet in facet_cord:
         # plot facets on the top
-        convex_lines = plotly_lines(facet, dash='solid')
+        convex_lines = plotly_lines(facet, dash='solid', width=5)
         data.append(convex_lines)
         # change z to zero, project facets to bottom
         facet[:,2] = 0
         # plot facets projections
-        convex_lines = plotly_lines(facet, dash='solid')
+        convex_lines = plotly_lines(facet, dash='solid', width=5)
+        data.append(convex_lines)
+
+    # plot edges for convex hull
+    for facet in simplices_cord:
+        convex_lines = plotly_lines(facet, dash='dash', width=1)
         data.append(convex_lines)
 
     # plot pillars
@@ -134,13 +147,8 @@ def plot_convex_hull(chemsys):
     #     data.append(convex_lines)
 
     # plot surfaces
-    polyhedron = plotly_polyhedron(nodes_top)
+    polyhedron = plotly_polyhedron(nodes_hull)
     data.append(polyhedron)
-
-    # nodes_index = np.array(facet_vertices).flatten()
-    # nodes_index = np.unique(nodes_index)
-    # nodes_name = np.array([entries[each].name for each in nodes_index])
-    # nodes_array = np.vstack([qhull_cord[each] for each in nodes_index])
 
     layout = dict(
         # title = '<b>Ternary Phase Diagram</b>',
@@ -151,11 +159,7 @@ def plot_convex_hull(chemsys):
                     zaxis = dict(zeroline=False, showticklabels=False, showgrid=False, showline=False, title = {'text':''}, visible=False),
                     camera= dict(eye = dict(x=2.0, y=1.0, z=0.5)),
                     ),
-        showlegend=False,
-        # width = 1000,
-        # height = 1000,
-        # autosize = True
-        # annotations = make_annotations(nodes_array, v_label),
+        showlegend=False
     )
 
     fig = dict(data=data, layout=layout)
@@ -163,12 +167,14 @@ def plot_convex_hull(chemsys):
     plotly.offline.plot(fig, filename='{fn}.html'.format(fn=chemsys), show_link=False, auto_open=False)
 
 def main():
+    # plot in batch
     # pretty_formula_list = pandas.read_csv('tables/Li/Li_candidates_calc.csv').pretty_formula.to_list()
     # chemsys_list = [Composition(each).chemical_system+'-Li' for each in pretty_formula_list if len(Composition(each).elements)==2]
     # for i, chemsys in enumerate(chemsys_list):
     #     plot_convex_hull(chemsys)
     #     print('{I}/{L}'.format(I=i+1, L=len(chemsys_list)))
     
+    # plot a given chemical system
     chemsys = 'O-Lu-Li'
     plot_convex_hull(chemsys)
 
