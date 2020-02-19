@@ -129,9 +129,9 @@ def plot_convex_hull(chemsys):
         data.append(convex_lines)
 
     # plot pillars
-    for pillar in zip(nodes_bottom[-3:], nodes_top[-3:]):
-        convex_lines = plotly_lines(pillar, dash='longdash')
-        data.append(convex_lines)
+    # for pillar in zip(nodes_bottom[-3:], nodes_top[-3:]):
+    #     convex_lines = plotly_lines(pillar, dash='longdash')
+    #     data.append(convex_lines)
 
     # plot surfaces
     polyhedron = plotly_polyhedron(nodes_top)
@@ -143,7 +143,7 @@ def plot_convex_hull(chemsys):
     # nodes_array = np.vstack([qhull_cord[each] for each in nodes_index])
 
     layout = dict(
-        # title = '<b>Quaternary Phase Diagram</b>',
+        # title = '<b>Ternary Phase Diagram</b>',
         title_x = 0.5,
         scene = dict(xaxis = dict(zeroline=False, showticklabels=False, showgrid=False, showline=False, title = {'text':''}, visible=False),
                     yaxis = dict(zeroline=False, showticklabels=False, showgrid=False, showline=False, title = {'text':''}, visible=False),
