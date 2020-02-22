@@ -6,9 +6,9 @@ import numpy as np
 chemsys_multiple = pd.read_csv('tables/Na/chemsys_all.csv', usecols=['chemsys']).values
 pure_materials = pd.read_csv('tables/pure_element_materials.csv', usecols=['pretty_formula']).values
 
+# remove duplicated elements and polymorphic compounds
 chemsys_list = np.hstack(chemsys_multiple)
 element_array = np.hstack([chemsys.split('-') for chemsys in chemsys_list])
-# remove duplicated elements and polymorphic compounds
 chemsys_elements = np.unique(element_array)
 pure_materials = np.unique(pure_materials)
 
