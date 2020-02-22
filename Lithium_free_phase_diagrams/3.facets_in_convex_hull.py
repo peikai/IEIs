@@ -3,7 +3,8 @@ from pymatgen.analysis.phase_diagram import PhaseDiagram
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-
+from retrying import retry
+import eventlet
 
 def drop_subset_chemsys(chemsys_series):
     # split chemsys str to find element-wise subset relations
@@ -13,7 +14,8 @@ def drop_subset_chemsys(chemsys_series):
     # prepare a list for iterations
     chemsys_list = chemsys_series.to_list()
     # prepare a dataframe to store other info
-    chemsys_dataframe = pd.DataFrame(chemsys_series, columns=['pretty_formula'])
+    chemsys_dataframe = chemsys_series.to_frame(name='elements')
+    # chemsys_dataframe = pd.DataFrame(chemsys_series, columns=['pretty_formula'])
     chemsys_dataframe['distinct'] = 'null'
     # like, A-B is not a subset of any chemsys, then store A-B
     for index, row in chemsys_series.iteritems():
@@ -44,6 +46,19 @@ def tieline_phases(phaseDiagram, key_element):
     tieline_entries_dict = [{'entry_id':phaseDiagram.qhull_entries[each].entry_id, 'pretty_formula':phaseDiagram.qhull_entries[each].name} for each in vertice_array]
 
     return(tieline_entries_dict)
+
+
+@retry(stop_max_attempt_number=12)
+def get_phase_diagram_in_chemsys(chemsys):
+    eventlet.monkey_patch() 
+    with eventlet.Timeout(120, True):
+        try:
+            with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
+                entries = mpr.get_entries_in_chemsys(chemsys)
+                phase_diagram = PhaseDiagram(entries)
+        except:
+            print('MRPestError, retry!')
+    return phase_diagram
 
 # find entries in Lithium-compounds-free Lithium phases diagrams
 elements_in_periodic_table = pd.read_csv('tables\element_list.csv')
@@ -79,12 +94,10 @@ chemsys_distinct.to_csv('chemsys_Sodiumfree.csv', header=['chemsys'], index=Fals
 chemsys_list = chemsys_distinct.to_list()
 tieline_entries = list()
 
-with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
-    for chemsys in tqdm(chemsys_list, total=len(chemsys_list)):
-        entries = mpr.get_entries_in_chemsys(chemsys)
-        phaseDiagram = PhaseDiagram(entries)
-        tieline_entries_dict = tieline_phases(phaseDiagram, key_element='Na')
-        tieline_entries.extend(tieline_entries_dict)
+for chemsys in tqdm(chemsys_list, total=len(chemsys_list)):
+    phase_diagram = get_phase_diagram_in_chemsys(chemsys)
+    tieline_entries_dict = tieline_phases(phase_diagram, key_element='Na')
+    tieline_entries.extend(tieline_entries_dict)
         
 tieline_dataframe = pd.DataFrame(tieline_entries)
 tieline_dataframe = tieline_dataframe[~tieline_dataframe.pretty_formula.isin(['Na'])]
