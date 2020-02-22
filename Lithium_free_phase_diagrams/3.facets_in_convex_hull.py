@@ -42,15 +42,13 @@ def tieline_phases(phaseDiagram, key_element):
     # find other phases in those facets
     vertice_array = np.array(facet_list).flatten()
     tieline_entries_dict = [{'entry_id':phaseDiagram.qhull_entries[each].entry_id, 'pretty_formula':phaseDiagram.qhull_entries[each].name} for each in vertice_array]
-    # # lithium: mp-135
-    # tieline_phases.remove('mp-135')
 
     return(tieline_entries_dict)
 
 # find entries in Lithium-compounds-free Lithium phases diagrams
 elements_in_periodic_table = pd.read_csv('tables\element_list.csv')
 ## elements consist of tielined pure elements
-tielined_elements = pd.read_csv('tables\Lithiumfree\Li_tielined_pure_elements.csv')
+tielined_elements = pd.read_csv('tables/Sodiumfree/Na_tielined_pure_elements.csv')
 ## other elments
 merged = elements_in_periodic_table.append(tielined_elements)
 other_elements = merged.drop_duplicates(keep=False)
@@ -64,7 +62,7 @@ with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
     entries = mpr.query(criteria={'elements':{'$in': tielined_elements_list, '$nin':other_elements_list}, 'e_above_hull':{'$eq':0}}, properties=['material_id', 'pretty_formula'])
 
 entries = pd.DataFrame(entries)
-entries.to_csv('entries_Lithiumfree.csv', index=False)
+entries.to_csv('entries_Sodiumfree.csv', index=False)
 
 # find chemical systems of entries (tielined pure elements have been included), then remove subsets
 ## join element in chemsys str, then drop duplicated chemsys
@@ -72,10 +70,10 @@ chemsys_all = entries.pretty_formula.apply(lambda x : '-'.join([e.name for e in 
 chemsys_all.drop_duplicates(inplace=True)
 
 ## combine with Li into chemical systems, and sort elements of each chemical system in alphabetical order
-chemsys_all = chemsys_all.apply(lambda x: 'Li-'+x)
+chemsys_all = chemsys_all.apply(lambda x: 'Na-'+x)
 chemsys_all = chemsys_all.apply(lambda x: '-'.join(sorted(x.split('-'))))
 chemsys_distinct = drop_subset_chemsys(chemsys_all)
-chemsys_distinct.to_csv('chemsys_Lithiumfree.csv', header=['chemsys'], index=False)
+chemsys_distinct.to_csv('chemsys_Sodiumfree.csv', header=['chemsys'], index=False)
 
 # construct phase diagrams and search tielined phases 
 chemsys_list = chemsys_distinct.to_list()
@@ -85,12 +83,9 @@ with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
     for chemsys in tqdm(chemsys_list, total=len(chemsys_list)):
         entries = mpr.get_entries_in_chemsys(chemsys)
         phaseDiagram = PhaseDiagram(entries)
-        tieline_entries_dict = tieline_phases(phaseDiagram, key_element='Li')
+        tieline_entries_dict = tieline_phases(phaseDiagram, key_element='Na')
         tieline_entries.extend(tieline_entries_dict)
         
 tieline_dataframe = pd.DataFrame(tieline_entries)
-## to compare results
-# tieline_dataframe.to_csv('Li_tieline_Lithiumfree.csv', index=False)
-tieline_dataframe.drop_duplicates().to_csv('Li_tieline_Lithiumfree_distinct.csv', index=False)
-tieline_dataframe.drop_duplicates('entry_id').to_csv('Li_tieline_Lithiumfree_ids.csv', index=False)
-tieline_dataframe.drop_duplicates('pretty_formula').to_csv('Li_tieline_Lithiumfree_names.csv', index=False)
+tieline_dataframe = tieline_dataframe[~tieline_dataframe.pretty_formula.isin(['Na'])]
+tieline_dataframe.drop_duplicates().to_csv('Na_tieline_Sodiumfree_distinct.csv', index=False)
