@@ -3,8 +3,6 @@ from pymatgen import Composition, Element
 
 # Merge binary tieline phases
 tieline_dataframe = pd.read_csv('tables/K/K_tieline.csv')
-tieline_binary_dataframe = pd.read_csv('tables/K/K_tieline_binary.csv')
-tieline_dataframe = tieline_dataframe.append(tieline_binary_dataframe, ignore_index=True)
 tieline_distinct_dataframe = tieline_dataframe.drop_duplicates()
 tieline_distinct_dataframe.to_csv('K_tieline_distinct.csv', index=False)
 
