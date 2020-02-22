@@ -89,6 +89,9 @@ def plot_convex_hull(chemsys):
     # nodes_hull = np.append(nodes_bottom, nodes_top, axis=0)
     # or use nodes of convex hull
     nodes_hull = pd.qhull_data
+    extra_node = nodes_hull[-1]
+    # reshape (3,) to (1,3)
+    extra_node = extra_node[np.newaxis,:]
 
     # unstable entries
     qhull_data_dataframe = pandas.DataFrame(qhull_data)
@@ -100,7 +103,7 @@ def plot_convex_hull(chemsys):
     # plot scatters
     scatter_vertices = dict(
         mode = "markers",
-        name = 'nodes',
+        name = 'nodes_bottom',
         type = "scatter3d",
         x = nodes_bottom[:,0], y = nodes_bottom[:,1], z = nodes_bottom[:,2],
         marker = dict(size=8, color="rgb(50,50,50)")
@@ -109,7 +112,7 @@ def plot_convex_hull(chemsys):
 
     scatter_vertices = dict(
         mode = "markers",
-        name = 'nodes',
+        name = 'nodes_top',
         type = "scatter3d",
         x = nodes_top[:,0], y = nodes_top[:,1], z = nodes_top[:,2],
         marker = dict(size=8, color="rgb(106, 90, 205)")
@@ -118,10 +121,19 @@ def plot_convex_hull(chemsys):
 
     scatter_vertices = dict(
         mode = "markers",
-        name = 'nodes',
+        name = 'unstable_nodes',
         type = "scatter3d",
         x = unstable_array[:,0], y = unstable_array[:,1], z = unstable_array[:,2],
         marker = dict(size=8, color="rgb(169, 169, 169)")
+    )
+    data.append(scatter_vertices)
+
+    scatter_vertices = dict(
+        mode = "markers",
+        name = 'extra_node',
+        type = "scatter3d",
+        x = extra_node[:,0], y = extra_node[:,1], z = extra_node[:,2],
+        marker = dict(symbol='circle-open', size=8, color="rgb(0, 0, 0)")
     )
     data.append(scatter_vertices)
 
@@ -138,7 +150,7 @@ def plot_convex_hull(chemsys):
 
     # plot edges for convex hull
     for facet in simplices_cord:
-        convex_lines = plotly_lines(facet, dash='dash', width=1)
+        convex_lines = plotly_lines(facet, dash='dash', width=2)
         data.append(convex_lines)
 
     # plot pillars
