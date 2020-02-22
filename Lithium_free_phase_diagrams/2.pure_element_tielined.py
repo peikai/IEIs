@@ -5,6 +5,8 @@ from tqdm import tqdm
 
 # vertex phases should be stable
 pure_materials = pandas.read_csv('tables/pure_element_materials.csv').pretty_formula
+# remove itself
+pure_materials = pure_materials[~pure_materials.isin(['Li'])]
 # get all binary chemical systems
 pure_elements = pure_materials.apply(lambda x: Composition(x).elements.pop())
 chemsys_series = pure_elements.apply(lambda x: 'Li-'+x.name)
