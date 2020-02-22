@@ -28,7 +28,6 @@ key_element='Li'
 
 tieline_phases_dataframe = pd.read_csv('tables\Li\Li_tieline_non_solubility_and_gas.csv')
 entry_id_list = tieline_phases_dataframe['entry_id'].to_list()
-formula_list = tieline_phases_dataframe['pretty_formula'].to_list()
 
 with MPRester(api_key='7F7ezXky4RsUOimpr') as mpr:
     # entry id is an alias of task id
