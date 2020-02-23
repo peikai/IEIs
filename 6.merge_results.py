@@ -22,11 +22,22 @@ def drop_subset_chemsys(chemsys_series):
     chemsys_distinct_series = chemsys_distinct_dataframe['chemsys']
     return chemsys_distinct_series
 
+def merge_then_remove_subset(dataframe_1, dataframe_2, column):
+    data_merged_dataframe = dataframe_1.append(dataframe_2, ignore_index=True)
+    data_merged_series = data_merged_dataframe[column].drop_duplicates()
+    data_distinct_series = drop_subset_chemsys(data_merged_series)
+    return(data_distinct_series)
+
 
 # merge Lithium chemical systems
-chemsys_1 = pd.read_csv('tables\Li\chemsys_all.csv', usecols=['chemsys'])
-chemsys_2 = pd.read_csv('tables\Lithiumfree\chemsys_Lithiumfree.csv', usecols=['chemsys'])
-chemsys_merged = chemsys_1.append(chemsys_2, ignore_index=True)
-chemsys_merged = chemsys_merged.chemsys.drop_duplicates()
-chemsys_distinct = drop_subset_chemsys(chemsys_merged)
-chemsys_distinct.to_csv('chemsys_all_with_Lithiumfree.csv', header=['chemsys'], index=False)
+chemsys_1 = pd.read_csv('tables/Na/chemsys_all.csv', usecols=['chemsys'])
+chemsys_2 = pd.read_csv('tables\Sodiumfree\chemsys_Sodiumfree.csv', usecols=['chemsys'])
+chemsys_distinct = merge_then_remove_subset(chemsys_1, chemsys_2, column='chemsys')
+chemsys_distinct.to_csv('chemsys_all_with_Sodiumfree.csv', header=['chemsys'], index=False)
+
+# merge thermodynamic stable phases
+tieline_1 = pd.read_csv('tables/Na/Na_tieline_distinct.csv')
+tieline_2 = pd.read_csv('tables/Sodiumfree/Na_tieline_Sodiumfree_distinct.csv')
+tieline_merged = tieline_1.append(tieline_2, ignore_index=True)
+tieline_merged = tieline_merged.drop_duplicates()
+tieline_merged.to_csv('Na_tieline_distinct_with_Sodiumfree.csv', index=False)
