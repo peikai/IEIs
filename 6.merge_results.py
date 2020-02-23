@@ -30,14 +30,14 @@ def merge_then_remove_subset(dataframe_1, dataframe_2, column):
 
 
 # merge Lithium chemical systems
-chemsys_1 = pd.read_csv('tables/Na/chemsys_all.csv', usecols=['chemsys'])
-chemsys_2 = pd.read_csv('tables\Sodiumfree\chemsys_Sodiumfree.csv', usecols=['chemsys'])
+chemsys_1 = pd.read_csv('tables/Li/chemsys_all.csv', usecols=['chemsys'])
+chemsys_2 = pd.read_csv('tables\Lithiumfree\chemsys_Lithiumfree.csv', usecols=['chemsys'])
 chemsys_distinct = merge_then_remove_subset(chemsys_1, chemsys_2, column='chemsys')
-chemsys_distinct.to_csv('chemsys_all_with_Sodiumfree.csv', header=['chemsys'], index=False)
+chemsys_distinct.to_csv('chemsys_all_with_Lithiumfree.csv', header=['chemsys'], index=False)
 
 # merge thermodynamic stable phases
-tieline_1 = pd.read_csv('tables/Na/Na_tieline_distinct.csv')
-tieline_2 = pd.read_csv('tables/Sodiumfree/Na_tieline_Sodiumfree_distinct.csv')
+tieline_1 = pd.read_csv('tables/Li/Li_tieline_distinct.csv')
+tieline_2 = pd.read_csv('tables/Lithiumfree/Li_tieline_Lithiumfree_distinct.csv')
 tieline_merged = tieline_1.append(tieline_2, ignore_index=True)
 tieline_merged = tieline_merged.drop_duplicates()
-tieline_merged.to_csv('Na_tieline_distinct_with_Sodiumfree.csv', index=False)
+tieline_merged.to_csv('Li_tieline_distinct_with_Lithiumfree.csv', index=False)

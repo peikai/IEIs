@@ -63,7 +63,7 @@ def get_phase_diagram_in_chemsys(chemsys):
 # find entries in Lithium-compounds-free Lithium phases diagrams
 elements_in_periodic_table = pd.read_csv('tables\element_list.csv')
 ## elements consist of tielined pure elements
-tielined_elements = pd.read_csv('tables/Potassiumfree/K_tielined_pure_elements.csv')
+tielined_elements = pd.read_csv('tables/Lithiumfree/Li_tielined_pure_elements.csv')
 ## other elments
 merged = elements_in_periodic_table.append(tielined_elements)
 other_elements = merged.drop_duplicates(keep=False)
@@ -77,7 +77,7 @@ with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
     entries = mpr.query(criteria={'elements':{'$in': tielined_elements_list, '$nin':other_elements_list}, 'e_above_hull':{'$eq':0}}, properties=['material_id', 'pretty_formula'])
 
 entries = pd.DataFrame(entries)
-entries.to_csv('entries_Potassiumfree.csv', index=False)
+entries.to_csv('entries_Lithiumfree.csv', index=False)
 
 # find chemical systems of entries (tielined pure elements have been included), then remove subsets
 ## join element in chemsys str, then drop duplicated chemsys
@@ -85,10 +85,11 @@ chemsys_all = entries.pretty_formula.apply(lambda x : '-'.join([e.name for e in 
 chemsys_all.drop_duplicates(inplace=True)
 
 ## combine with Li into chemical systems, and sort elements of each chemical system in alphabetical order
-chemsys_all = chemsys_all.apply(lambda x: 'K-'+x)
+## warning: once add Li as a vertex, Lithium compounds may occur in phase diagrams
+chemsys_all = chemsys_all.apply(lambda x: 'Li-'+x)
 chemsys_all = chemsys_all.apply(lambda x: '-'.join(sorted(x.split('-'))))
 chemsys_distinct = drop_subset_chemsys(chemsys_all)
-chemsys_distinct.to_csv('chemsys_Potassiumfree.csv', header=['chemsys'], index=False)
+chemsys_distinct.to_csv('chemsys_Lithiumfree.csv', header=['chemsys'], index=False)
 
 # construct phase diagrams and search tielined phases 
 chemsys_list = chemsys_distinct.to_list()
@@ -96,9 +97,9 @@ tieline_entries = list()
 
 for chemsys in tqdm(chemsys_list, total=len(chemsys_list)):
     phase_diagram = get_phase_diagram_in_chemsys(chemsys)
-    tieline_entries_dict = tieline_phases(phase_diagram, key_element='K')
+    tieline_entries_dict = tieline_phases(phase_diagram, key_element='Li')
     tieline_entries.extend(tieline_entries_dict)
         
 tieline_dataframe = pd.DataFrame(tieline_entries)
-tieline_dataframe = tieline_dataframe[~tieline_dataframe.pretty_formula.isin(['K'])]
-tieline_dataframe.drop_duplicates().to_csv('K_tieline_Potassiumfree_distinct.csv', index=False)
+tieline_dataframe = tieline_dataframe[~tieline_dataframe.pretty_formula.isin(['Li'])]
+tieline_dataframe.drop_duplicates().to_csv('Li_tieline_Lithiumfree_distinct.csv', index=False)
