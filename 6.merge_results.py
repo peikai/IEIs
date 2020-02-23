@@ -20,6 +20,7 @@ def drop_subset_chemsys(chemsys_series):
     chemsys_distinct_dataframe = chemsys_dataframe.loc[chemsys_dataframe['distinct'] == True]
     chemsys_distinct_dataframe.loc[:, 'chemsys'] = chemsys_distinct_dataframe.elements.apply(lambda x : '-'.join(x))
     chemsys_distinct_series = chemsys_distinct_dataframe['chemsys']
+    chemsys_distinct_series = chemsys_distinct_series.apply(lambda x: '-'.join(sorted(x.split('-'))))
     return chemsys_distinct_series
 
 def merge_then_remove_subset(dataframe_1, dataframe_2, column):

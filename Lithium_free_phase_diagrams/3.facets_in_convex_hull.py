@@ -27,6 +27,7 @@ def drop_subset_chemsys(chemsys_series):
     chemsys_distinct_dataframe = chemsys_dataframe.loc[chemsys_dataframe['distinct'] == True]
     chemsys_distinct_dataframe.loc[:, 'chemsys'] = chemsys_distinct_dataframe.elements.apply(lambda x : '-'.join(x))
     chemsys_distinct_series = chemsys_distinct_dataframe['chemsys']
+    chemsys_distinct_series = chemsys_distinct_series.apply(lambda x: '-'.join(sorted(x.split('-'))))
     return chemsys_distinct_series
 
 
@@ -87,9 +88,7 @@ chemsys_all.drop_duplicates(inplace=True)
 ## combine with Li into chemical systems, and sort elements of each chemical system in alphabetical order
 ## warning: once add Li as a vertex, Lithium compounds may occur in phase diagrams
 chemsys_all = chemsys_all.apply(lambda x: 'Li-'+x)
-# chemsys_all = chemsys_all.apply(lambda x: '-'.join(sorted(x.split('-'))))
 chemsys_distinct = drop_subset_chemsys(chemsys_all)
-chemsys_all = chemsys_all.apply(lambda x: '-'.join(sorted(x.split('-'))))
 chemsys_distinct.to_csv('chemsys_Lithiumfree.csv', header=['chemsys'], index=False)
 
 # construct phase diagrams and search tielined phases 

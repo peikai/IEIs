@@ -24,6 +24,7 @@ def drop_subset_chemsys(chemsys_series):
     chemsys_distinct_dataframe = chemsys_dataframe.loc[chemsys_dataframe['distinct'] == True] 
     chemsys_distinct_dataframe.loc[:, 'chemsys'] = chemsys_distinct_dataframe.elements.apply(lambda x : '-'.join(x))
     chemsys_distinct_series = chemsys_distinct_dataframe['chemsys']
+    chemsys_distinct_series = chemsys_distinct_series.apply(lambda x: '-'.join(sorted(x.split('-'))))
     return chemsys_distinct_series
        
 
@@ -35,5 +36,4 @@ chemsys_all.drop_duplicates(inplace=True)
 
 chemsys_all = drop_subset_chemsys(chemsys_all)
 # sort chemical system is a fixed order
-chemsys_all = chemsys_all.apply(lambda x: '-'.join(sorted(x.split('-'))))
 chemsys_all.to_csv('chemsys_all.csv', header=['chemsys'], index=False)
