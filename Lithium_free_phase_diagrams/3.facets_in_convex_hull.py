@@ -15,7 +15,7 @@ def drop_subset_chemsys(chemsys_series):
     chemsys_list = chemsys_series.to_list()
     # prepare a dataframe to store other info
     chemsys_dataframe = chemsys_series.to_frame(name='elements')
-    # chemsys_dataframe = pd.DataFrame(chemsys_series, columns=['pretty_formula'])
+    ## chemsys_dataframe = pd.DataFrame(chemsys_series, columns=['pretty_formula'])
     chemsys_dataframe['distinct'] = 'null'
     # like, A-B is not a subset of any chemsys, then store A-B
     for index, row in chemsys_series.iteritems():
@@ -25,7 +25,7 @@ def drop_subset_chemsys(chemsys_series):
             chemsys_dataframe.loc[index, 'distinct'] = True
 
     chemsys_distinct_dataframe = chemsys_dataframe.loc[chemsys_dataframe['distinct'] == True]
-    chemsys_distinct_dataframe.loc[:, 'chemsys'] = chemsys_distinct_dataframe.pretty_formula.apply(lambda x : '-'.join(x))
+    chemsys_distinct_dataframe.loc[:, 'chemsys'] = chemsys_distinct_dataframe.elements.apply(lambda x : '-'.join(x))
     chemsys_distinct_series = chemsys_distinct_dataframe['chemsys']
     return chemsys_distinct_series
 
@@ -63,7 +63,7 @@ def get_phase_diagram_in_chemsys(chemsys):
 # find entries in Lithium-compounds-free Lithium phases diagrams
 elements_in_periodic_table = pd.read_csv('tables\element_list.csv')
 ## elements consist of tielined pure elements
-tielined_elements = pd.read_csv('tables/Sodiumfree/Na_tielined_pure_elements.csv')
+tielined_elements = pd.read_csv('tables/Potassiumfree/K_tielined_pure_elements.csv')
 ## other elments
 merged = elements_in_periodic_table.append(tielined_elements)
 other_elements = merged.drop_duplicates(keep=False)
@@ -77,7 +77,7 @@ with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
     entries = mpr.query(criteria={'elements':{'$in': tielined_elements_list, '$nin':other_elements_list}, 'e_above_hull':{'$eq':0}}, properties=['material_id', 'pretty_formula'])
 
 entries = pd.DataFrame(entries)
-entries.to_csv('entries_Sodiumfree.csv', index=False)
+entries.to_csv('entries_Potassiumfree.csv', index=False)
 
 # find chemical systems of entries (tielined pure elements have been included), then remove subsets
 ## join element in chemsys str, then drop duplicated chemsys
@@ -85,10 +85,10 @@ chemsys_all = entries.pretty_formula.apply(lambda x : '-'.join([e.name for e in 
 chemsys_all.drop_duplicates(inplace=True)
 
 ## combine with Li into chemical systems, and sort elements of each chemical system in alphabetical order
-chemsys_all = chemsys_all.apply(lambda x: 'Na-'+x)
+chemsys_all = chemsys_all.apply(lambda x: 'K-'+x)
 chemsys_all = chemsys_all.apply(lambda x: '-'.join(sorted(x.split('-'))))
 chemsys_distinct = drop_subset_chemsys(chemsys_all)
-chemsys_distinct.to_csv('chemsys_Sodiumfree.csv', header=['chemsys'], index=False)
+chemsys_distinct.to_csv('chemsys_Potassiumfree.csv', header=['chemsys'], index=False)
 
 # construct phase diagrams and search tielined phases 
 chemsys_list = chemsys_distinct.to_list()
@@ -96,9 +96,9 @@ tieline_entries = list()
 
 for chemsys in tqdm(chemsys_list, total=len(chemsys_list)):
     phase_diagram = get_phase_diagram_in_chemsys(chemsys)
-    tieline_entries_dict = tieline_phases(phase_diagram, key_element='Na')
+    tieline_entries_dict = tieline_phases(phase_diagram, key_element='K')
     tieline_entries.extend(tieline_entries_dict)
         
 tieline_dataframe = pd.DataFrame(tieline_entries)
-tieline_dataframe = tieline_dataframe[~tieline_dataframe.pretty_formula.isin(['Na'])]
-tieline_dataframe.drop_duplicates().to_csv('Na_tieline_Sodiumfree_distinct.csv', index=False)
+tieline_dataframe = tieline_dataframe[~tieline_dataframe.pretty_formula.isin(['K'])]
+tieline_dataframe.drop_duplicates().to_csv('K_tieline_Potassiumfree_distinct.csv', index=False)

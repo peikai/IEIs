@@ -26,7 +26,7 @@ def recheck_e_above_hull(material_id, key_element):
 
 key_element='Na'
 
-tieline_phases_dataframe = pd.read_csv('tables\Sodiumfree\Na_tieline_Lithiumfree_non_gas.csv')
+tieline_phases_dataframe = pd.read_csv('tables/Sodiumfree/Na_tieline_Sodiumfree_non_gas.csv')
 entry_id_list = tieline_phases_dataframe['entry_id'].to_list()
 
 with MPRester(api_key='7F7ezXky4RsUOimpr') as mpr:
