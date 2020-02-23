@@ -87,8 +87,9 @@ chemsys_all.drop_duplicates(inplace=True)
 ## combine with Li into chemical systems, and sort elements of each chemical system in alphabetical order
 ## warning: once add Li as a vertex, Lithium compounds may occur in phase diagrams
 chemsys_all = chemsys_all.apply(lambda x: 'Li-'+x)
-chemsys_all = chemsys_all.apply(lambda x: '-'.join(sorted(x.split('-'))))
+# chemsys_all = chemsys_all.apply(lambda x: '-'.join(sorted(x.split('-'))))
 chemsys_distinct = drop_subset_chemsys(chemsys_all)
+chemsys_all = chemsys_all.apply(lambda x: '-'.join(sorted(x.split('-'))))
 chemsys_distinct.to_csv('chemsys_Lithiumfree.csv', header=['chemsys'], index=False)
 
 # construct phase diagrams and search tielined phases 
