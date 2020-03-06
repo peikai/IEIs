@@ -51,7 +51,8 @@ def makeAxis(title, tickangle):
       'showticklabels': False
     }
 
-chemsys = 'Li-Lu-O'
+# chemsys = 'Li-Lu-O'
+chemsys = 'Fe-Lu-Li'
 
 with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
     entries = mpr.get_entries_in_chemsys(chemsys)
@@ -105,5 +106,5 @@ fig.update_layout({
     # }]
 })
 
-plotly.io.write_image(fig, 'ternery_bg.png', scale=8)
-plotly.offline.plot(fig, filename='{fn}.html'.format(fn='ternary_bg'), show_link=False)
+plotly.io.write_image(fig, '{fn}.png'.format(fn=chemsys), scale=8)
+plotly.offline.plot(fig, filename='{fn}.html'.format(fn=chemsys), show_link=False, auto_open=False)
