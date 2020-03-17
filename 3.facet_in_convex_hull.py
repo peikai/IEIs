@@ -19,7 +19,7 @@ def tieline_phases(phaseDiagram, key_element):
 
     # find other phases in those facets
     vertice_array = np.array(facet_list).flatten()
-    tieline_entries_dict = [{'entry_id':phaseDiagram.qhull_entries[each].entry_id, 'pretty_formula':phaseDiagram.qhull_entries[each].name} for each in vertice_array]
+    tieline_entries_dict = [{'material_id':phaseDiagram.qhull_entries[each].entry_id, 'pretty_formula':phaseDiagram.qhull_entries[each].name} for each in vertice_array]
     # # lithium: mp-135
     # tieline_phases.remove('mp-135')
 
@@ -43,6 +43,6 @@ tieline_dataframe.to_csv('Li_tieline.csv', index=False)
 
 tieline_dataframe.drop_duplicates().to_csv('Li_tieline_distinct.csv', index=False)
 
-tieline_dataframe.drop_duplicates('entry_id').to_csv('Li_tieline_ids.csv', index=False)
+tieline_dataframe.drop_duplicates('material_id').to_csv('Li_tieline_ids.csv', index=False)
 
 tieline_dataframe.drop_duplicates('pretty_formula').to_csv('Li_tieline_names.csv', index=False)

@@ -27,11 +27,11 @@ def recheck_e_above_hull(material_id, key_element):
 key_element='Li'
 
 tieline_phases_dataframe = pd.read_csv('tables\Li\Li_tieline_non_solubility_and_gas.csv')
-entry_id_list = tieline_phases_dataframe['entry_id'].to_list()
+material_id_list = tieline_phases_dataframe['material_id'].to_list()
 
 with MPRester(api_key='7F7ezXky4RsUOimpr') as mpr:
     # entry id is an alias of task id
-    candidates_calc = mpr.query(criteria={'task_id':{'$in': entry_id_list}, 'band_gap':{'$gte':3.0}}, properties=['material_id', 'pretty_formula', 'band_gap', 'e_above_hull', 'theoretical', 'icsd_ids'])
+    candidates_calc = mpr.query(criteria={'task_id':{'$in': material_id_list}, 'band_gap':{'$gte':3.0}}, properties=['material_id', 'pretty_formula', 'band_gap', 'e_above_hull', 'theoretical', 'icsd_ids'])
 
 candidates_calc_dataframe = pd.DataFrame(candidates_calc)
 
