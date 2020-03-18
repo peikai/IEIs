@@ -1,4 +1,4 @@
-from pymatgen import MPRester, Composition
+from pymatgen import MPRester, Composition, Element
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 import numpy as np
 import pandas as pd
@@ -44,9 +44,9 @@ def tieline_phases(phaseDiagram, key_element):
 
     # find other phases in those facets
     vertice_array = np.array(facet_list).flatten()
-    tieline_entries_dict = [{'material_id':phaseDiagram.qhull_entries[each].entry_id, 'pretty_formula':phaseDiagram.qhull_entries[each].name} for each in vertice_array]
+    tieline_entries_list = [{'material_id':phaseDiagram.qhull_entries[each].entry_id, 'pretty_formula':phaseDiagram.qhull_entries[each].name} for each in vertice_array]
 
-    return(tieline_entries_dict)
+    return(tieline_entries_list)
 
 
 @retry(stop_max_attempt_number=12)
@@ -96,10 +96,14 @@ tieline_entries = list()
 
 for chemsys in tqdm(chemsys_list, total=len(chemsys_list)):
     phase_diagram = get_phase_diagram_in_chemsys(chemsys)
-    tieline_entries_dict = tieline_phases(phase_diagram, key_element=key_element)
-    tieline_entries.extend(tieline_entries_dict)
+    tieline_entries_list = tieline_phases(phase_diagram, key_element=key_element)
+    tieline_entries.extend(tieline_entries_list)
         
 tieline_dataframe = pd.DataFrame(tieline_entries)
-# some of phases that containing Li element are not what we want
-tieline_dataframe = tieline_dataframe[~tieline_dataframe.pretty_formula.isin([key_element])]
+# some Lithium compounds are also mixed in, kick them out; we only need Li-free compounds
+boolean_element = tieline_dataframe.pretty_formula.apply(lambda x : Element(key_element) not in Composition(x).elements)
+tieline_dataframe = tieline_dataframe[boolean_element]
+# also remove nobel gas
+boolean_gas = tieline_dataframe.pretty_formula.apply(lambda x : True not in [e.is_noble_gas for e in Composition(x).elements])
+tieline_dataframe = tieline_dataframe[boolean_gas]
 tieline_dataframe.drop_duplicates().to_csv('tieline_distinct.csv', index=False)
