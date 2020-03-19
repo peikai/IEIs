@@ -103,7 +103,9 @@ tieline_dataframe = pd.DataFrame(tieline_entries)
 # some Lithium compounds are also mixed in, kick them out; we only need Li-free compounds
 boolean_element = tieline_dataframe.pretty_formula.apply(lambda x : Element(key_element) not in Composition(x).elements)
 tieline_dataframe = tieline_dataframe[boolean_element]
+# number of tielined entries may not be the same with queried entries, see set_difference.1.csv and Ba-Na-Li system
+tieline_dataframe.drop_duplicates().to_csv('tieline_distinct.csv', index=False)
 # also remove nobel gas
 boolean_gas = tieline_dataframe.pretty_formula.apply(lambda x : True not in [e.is_noble_gas for e in Composition(x).elements])
 tieline_dataframe = tieline_dataframe[boolean_gas]
-tieline_dataframe.drop_duplicates().to_csv('tieline_distinct.csv', index=False)
+tieline_dataframe.drop_duplicates().to_csv('tieline_distinct_without_gas.csv', index=False)

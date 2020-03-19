@@ -12,7 +12,7 @@ pure_materials = pure_materials[~pure_materials.isin([key_element])]
 pure_elements = pure_materials.apply(lambda x: Composition(x).elements.pop())
 chemsys_series = pure_elements.apply(lambda x: key_element+'-'+x.name)
 chemsys_series.drop_duplicates(inplace=True)
-# chemsys_series.to_csv('Li_chemsys_pure_elements.csv', index=False, header=['chemsys'])
+# chemsys_series.to_csv('chemsys_pure_elements.csv', index=False, header=['chemsys'])
 
 # query all entries in each binary chemsys
 # and find chemsys whose vertex phases directly tielined together

@@ -26,7 +26,7 @@ def recheck_e_above_hull(material_id, key_element):
 
 key_element='Li'
 
-tieline_phases_dataframe = pd.read_csv('tables/{element}-free/tieline_distinct.csv'.format(element=key_element))
+tieline_phases_dataframe = pd.read_csv('tables/{element}-free/tieline_distinct_without_gas.csv'.format(element=key_element))
 material_id_list = tieline_phases_dataframe['material_id'].to_list()
 
 with MPRester(api_key='7F7ezXky4RsUOimpr') as mpr:
