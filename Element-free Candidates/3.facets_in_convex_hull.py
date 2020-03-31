@@ -35,18 +35,24 @@ def tieline_phases(phaseDiagram, key_element):
     # find its coordinate in phase diagram
     comp = Composition(key_element)
     c = phaseDiagram.pd_coords(comp)
+    qhull_entries = phaseDiagram.qhull_entries
     # find facets that key element acted as a vertice
     # vertices of facets are stable phases
     facet_list = list()
     for f, s in zip(phaseDiagram.facets, phaseDiagram.simplexes):
         if s.in_simplex(c, PhaseDiagram.numerical_tol / 10):
             facet_list.append(f)
-
+    # covert index list to entry list, for example, ['mp-135', 'mp-2049', 'mp-2283', 'mp-929']
+    facet_entries_list = list()
+    for facet in facet_list:
+        facet_entries = [qhull_entries[index].entry_id for index in facet]
+        facet_entries.sort()
+        facet_entries_list.append(facet_entries)
     # find other phases in those facets
     vertice_array = np.array(facet_list).flatten()
-    tieline_entries_list = [{'material_id':phaseDiagram.qhull_entries[each].entry_id, 'pretty_formula':phaseDiagram.qhull_entries[each].name} for each in vertice_array]
+    tieline_entries_list = [{'material_id':qhull_entries[each].entry_id, 'pretty_formula':qhull_entries[each].name} for each in vertice_array]
 
-    return(tieline_entries_list)
+    return(facet_entries_list, tieline_entries_list)
 
 
 @retry(stop_max_attempt_number=12)
@@ -93,12 +99,18 @@ chemsys_distinct.to_csv('chemsys.csv', header=['chemsys'], index=False)
 # construct phase diagrams and search tielined phases 
 chemsys_list = chemsys_distinct.to_list()
 tieline_entries = list()
+facet_entries = list()
 
 for chemsys in tqdm(chemsys_list, total=len(chemsys_list)):
     phase_diagram = get_phase_diagram_in_chemsys(chemsys)
-    tieline_entries_list = tieline_phases(phase_diagram, key_element=key_element)
+    facet_entries_list, tieline_entries_list = tieline_phases(phase_diagram, key_element=key_element)
+    facet_entries.extend(facet_entries_list)
     tieline_entries.extend(tieline_entries_list)
-        
+
+# save simplexes to make statistics
+facet_dataframe = pd.DataFrame(facet_entries)
+facet_dataframe.drop_duplicates().to_csv('facets_distinct.csv', index=False)
+# save phases have a tie-line with Lithium
 tieline_dataframe = pd.DataFrame(tieline_entries)
 # some Lithium compounds are also mixed in, kick them out; we only need Li-free compounds
 boolean_element = tieline_dataframe.pretty_formula.apply(lambda x : Element(key_element) not in Composition(x).elements)
