@@ -62,20 +62,20 @@ def drop_subset_facets(facets_merged):
     facets_distinct_series = facets_distinct_dataframe['facet']
     return facets_distinct_series
 
-key_element = 'K'
+key_element = 'Li'
 # merge Lithium chemical systems
-chemsys_1 = pd.read_csv('tables/{element}/chemsys_all.csv'.format(element=key_element), usecols=['chemsys'])
+chemsys_1 = pd.read_csv('tables/{element}/chemsys.csv'.format(element=key_element), usecols=['chemsys'])
 chemsys_2 = pd.read_csv('tables/{element}-free/chemsys.csv'.format(element=key_element), usecols=['chemsys'])
 chemsys_distinct = merge_then_remove_subset(chemsys_1, chemsys_2, column='chemsys')
 chemsys_distinct.to_csv('chemsys_all.csv', header=['chemsys'], index=False)
 # merge thermodynamic stable phases
-tieline_1 = pd.read_csv('tables/{element}/K_tieline_distinct.csv'.format(element=key_element))
+tieline_1 = pd.read_csv('tables/{element}/tieline_distinct.csv'.format(element=key_element))
 tieline_2 = pd.read_csv('tables/{element}-free/tieline_distinct.csv'.format(element=key_element))
 tieline_merged = tieline_1.append(tieline_2, ignore_index=True)
 tieline_merged = tieline_merged.drop_duplicates()
 tieline_merged.to_csv('tieline_distinct_all.csv', index=False)
 # merge facets
-facets_1 = pd.read_csv('tables/{element}/K_facets_distinct.csv'.format(element=key_element))
+facets_1 = pd.read_csv('tables/{element}/facets_distinct.csv'.format(element=key_element))
 facets_2 = pd.read_csv('tables/{element}-free/facets_distinct.csv'.format(element=key_element))
 facets_merged = facets_1.append(facets_2, ignore_index=True)
 facets_merged = facets_merged.drop_duplicates()

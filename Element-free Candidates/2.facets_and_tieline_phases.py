@@ -35,21 +35,21 @@ def tieline_phases(phaseDiagram, key_element):
     # find its coordinate in phase diagram
     comp = Composition(key_element)
     c = phaseDiagram.pd_coords(comp)
-    qhull_entries = phaseDiagram.qhull_entries
     # find facets that key element acted as a vertice
     # vertices of facets are stable phases
-    facet_list = list()
+    facet_index_list = list()
     for f, s in zip(phaseDiagram.facets, phaseDiagram.simplexes):
         if s.in_simplex(c, PhaseDiagram.numerical_tol / 10):
-            facet_list.append(f)
+            facet_index_list.append(f)
     # covert index list to entry list, for example, ['mp-135', 'mp-2049', 'mp-2283', 'mp-929']
     facet_entries_list = list()
-    for facet in facet_list:
+    qhull_entries = phaseDiagram.qhull_entries
+    for facet in facet_index_list:
         facet_entries = [qhull_entries[index].entry_id for index in facet]
         facet_entries.sort()
         facet_entries_list.append(facet_entries)
     # find other phases in those facets
-    vertice_array = np.array(facet_list).flatten()
+    vertice_array = np.array(facet_index_list).flatten()
     tieline_entries_list = [{'material_id':qhull_entries[each].entry_id, 'pretty_formula':qhull_entries[each].name} for each in vertice_array]
 
     return(facet_entries_list, tieline_entries_list)
@@ -71,12 +71,12 @@ key_element = 'Li'
 # find entries in Lithium-compounds-free Lithium phases diagrams
 elements_in_periodic_table = pd.read_csv('tables\element_list.csv')
 ## elements consist of tielined pure elements
-tielined_elements = pd.read_csv('tables/{element}-free/tielined_pure_elements.csv'.format(element=key_element))
+tielined_elements = pd.read_csv('tables/{element}-free/tielined_elementary_phases.csv'.format(element=key_element))
 ## other elments
 merged = elements_in_periodic_table.append(tielined_elements)
 other_elements = merged.drop_duplicates(keep=False)
 other_elements.reset_index(inplace=True, drop=True)
-
+## perform the query
 tielined_elements_list = tielined_elements.elements.to_list()
 other_elements_list = other_elements.elements.to_list()
 with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
@@ -115,9 +115,5 @@ tieline_dataframe = pd.DataFrame(tieline_entries)
 # some Lithium compounds are also mixed in, kick them out; we only need Li-free compounds
 boolean_element = tieline_dataframe.pretty_formula.apply(lambda x : Element(key_element) not in Composition(x).elements)
 tieline_dataframe = tieline_dataframe[boolean_element]
-# number of tielined entries may not be the same with queried entries, see set_difference.1.csv and Ba-Na-Li system
+# number of tielined entries may not be the same with queried entries, see Ba-Na-Li system
 tieline_dataframe.drop_duplicates().to_csv('tieline_distinct.csv', index=False)
-# also remove nobel gas
-boolean_gas = tieline_dataframe.pretty_formula.apply(lambda x : True not in [e.is_noble_gas for e in Composition(x).elements])
-tieline_dataframe = tieline_dataframe[boolean_gas]
-tieline_dataframe.drop_duplicates().to_csv('tieline_distinct_without_gas.csv', index=False)
