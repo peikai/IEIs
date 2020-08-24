@@ -27,17 +27,23 @@ def merge_facet(convexhull):
     return(facet_list)
 
 
-def plotly_polyhedron(polyhedron):
-    polyhedron= np.vstack(polyhedron)
-    x, y, z = [polyhedron[:,0], polyhedron[:,1], polyhedron[:,2]]
-    convex_polyhedon = dict(x=x, y=y, z=z, type= 'mesh3d', alphahull=0, opacity=0.2, color="rgb(106, 90, 205)")
-    return(convex_polyhedon)
+# def plotly_polyhedron(polyhedron):
+#     polyhedron= np.vstack(polyhedron)
+#     x, y, z = [polyhedron[:,0], polyhedron[:,1], polyhedron[:,2]]
+#     convex_polyhedon = dict(x=x, y=y, z=z, type= 'mesh3d', alphahull=0, opacity=0.2, color="rgb(106, 90, 205)", lightposition=dict(z=1000))
+
+#     return(convex_polyhedon)
+
+def plotly_facet(facet_cord, color):
+    x, y, z = facet_cord.T
+    facet = dict(x = x, y = y, z = z, type='mesh3d', color=color, opacity=0.8) #lightposition=dict(x=4000, y=-300, z=400)
+    return facet
 
 def plotly_lines(line_nodes, dash, width):
     # To make lines a loop.
     line_nodes = np.vstack((line_nodes, line_nodes[0]))
     x, y, z = [line_nodes[:,0], line_nodes[:,1], line_nodes[:,2]]
-    lines=dict(x=x, y=y, z=z, mode='lines', type='scatter3d', showlegend=False, line=dict(dash=dash, color= 'rgb(50,50,50)', width=width))
+    lines=dict(x=x, y=y, z=z, mode='lines', type='scatter3d', showlegend=False, line=dict(dash=dash, color='rgb(50,50,50)', width=width))
     return(lines)
 
 def tieline_phases(phaseDiagram, key_element):
@@ -52,122 +58,114 @@ def tieline_phases(phaseDiagram, key_element):
             facet_list.append(f)
     return(facet_list)
 
-
 def plot_convex_hull(chemsys):
     with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
         entries = mpr.get_entries_in_chemsys(chemsys)
 
     pd = PhaseDiagram(entries)
 
-    # get original qhull data, simplices
-    entries = pd.qhull_entries
+    # get original qhull data
     qhull_data = pd.qhull_data
-    qhull_simplices = get_facets(qhull_data)
-    simplices_cord = [qhull_data[each] for each in qhull_simplices]
 
     # simplices without irrelevant facets
-    facet_vertices = pd.facets
+    facet_vertices = pd.facets # multi-level array, contains duplicates vertices
 
-    # an extra point exists in original pd.qhull_data
+    # an extra point exists in original pd.qhull_data, drop it
     qhull_data = np.delete(qhull_data, -1, axis=0)
 
-    # multi-level array, contains duplicates vertices
-    facet_cord = [qhull_data[each] for each in facet_vertices]
+    # convert vertex cordinations of each facet
+    facet_cord_list = [qhull_data[each] for each in facet_vertices]
 
     # do not need duplicated nodes using for construct convex hull
-    stable_nodes = np.unique(facet_vertices)
-    stable_cord = qhull_data[stable_nodes][:,0:2]
-    stable_energy = qhull_data[stable_nodes][:,2]
+    stable_nodes_index = np.unique(facet_vertices)
+    # split cords and energies of stable entries from qhull data
+    stable_cord_xy = qhull_data[stable_nodes_index][:,0:2]
+    stable_energy = qhull_data[stable_nodes_index][:,2]
 
-    # nodes of projections of convex hull construction
-    nodes_bottom = np.insert(stable_cord, 2, values=0, axis=1)
+    # nodes of projected hull
+    nodes_projected = np.insert(stable_cord_xy, 2, values=0, axis=1)
     # reshape array (3,) to (3,1)
-    nodes_top_z = stable_energy[:,np.newaxis]
-    nodes_top = np.insert(stable_cord, [2], values=nodes_top_z, axis=1)
+    nodes_stable_z = stable_energy[:,np.newaxis]
+    nodes_stable = np.insert(stable_cord_xy, [2], values=nodes_stable_z, axis=1)
 
-    # merge nodes_top with nodes_bottom
-    # nodes_hull = np.append(nodes_bottom, nodes_top, axis=0)
-    # or use nodes of convex hull
-    nodes_hull = pd.qhull_data
-    extra_node = nodes_hull[-1]
-    # reshape (3,) to (1,3)
-    extra_node = extra_node[np.newaxis,:]
-
-    # unstable entries
+    # unstable entries that under the hull
     qhull_data_dataframe = pandas.DataFrame(qhull_data)
-    qhull_data_dataframe = qhull_data_dataframe[qhull_data_dataframe.loc[:,2] < 1e-11]
-    unstable_array = qhull_data_dataframe.append(pandas.DataFrame(nodes_top)).drop_duplicates(keep=False).to_numpy()
+    unstable_array = qhull_data_dataframe.append(pandas.DataFrame(nodes_stable)).drop_duplicates(keep=False).to_numpy()
 
     data = []
 
     # plot scatters
     scatter_vertices = dict(
         mode = "markers",
-        name = 'nodes_bottom',
+        name = 'nodes_projected',
         type = "scatter3d",
-        x = nodes_bottom[:,0], y = nodes_bottom[:,1], z = nodes_bottom[:,2],
-        marker = dict(size=8, color="rgb(50,50,50)")
+        x = nodes_projected[:,0], y = nodes_projected[:,1], z = nodes_projected[:,2],
+        marker = dict(size=6, color="rgb(50,50,50)")
     )
     data.append(scatter_vertices)
 
     scatter_vertices = dict(
         mode = "markers",
-        name = 'nodes_top',
+        name = 'nodes_stable',
         type = "scatter3d",
-        x = nodes_top[:,0], y = nodes_top[:,1], z = nodes_top[:,2],
-        marker = dict(size=8, color="rgb(106, 90, 205)")
+        x = nodes_stable[:,0], y = nodes_stable[:,1], z = nodes_stable[:,2],
+        # marker = dict(size=8, color="rgb(106, 90, 205)")
+        # marker = dict(size=6, color="limegreen")
+        marker = dict(size=6, color="rgb(67, 147, 195)")
+        # marker = dict(size=8, color="rgb(47, 6, 150)")
+        # marker = dict(size=8, color="rgb(214, 204, 35)")
+        # marker = dict(size=8, color="rgb(97, 49, 150)")
     )
     data.append(scatter_vertices)
 
-    scatter_vertices = dict(
-        mode = "markers",
-        name = 'unstable_nodes',
-        type = "scatter3d",
-        x = unstable_array[:,0], y = unstable_array[:,1], z = unstable_array[:,2],
-        marker = dict(size=8, color="rgb(169, 169, 169)")
-    )
-    data.append(scatter_vertices)
-
-    scatter_vertices = dict(
-        mode = "markers",
-        name = 'extra_node',
-        type = "scatter3d",
-        x = extra_node[:,0], y = extra_node[:,1], z = extra_node[:,2],
-        marker = dict(symbol='circle-open', size=8, color="rgb(0, 0, 0)")
-    )
-    data.append(scatter_vertices)
+    # scatter_vertices = dict(
+    #     mode = "markers",
+    #     name = 'unstable_nodes',
+    #     type = "scatter3d",
+    #     x = unstable_array[:,0], y = unstable_array[:,1], z = unstable_array[:,2],
+    #     marker = dict(size=8, color="rgb(169, 169, 169)")
+    # )
+    # data.append(scatter_vertices)
 
     # plot edges of facets
-    for facet in facet_cord:
+    for facet in facet_cord_list:
         # plot facets on the top
-        convex_lines = plotly_lines(facet, dash='solid', width=5)
+        convex_lines = plotly_lines(facet, dash='solid', width=4)
         data.append(convex_lines)
         # change z to zero, project facets to bottom
-        facet[:,2] = 0
+        facet_copy = facet.copy()
+        facet_copy[:,2] = 0
         # plot facets projections
-        convex_lines = plotly_lines(facet, dash='solid', width=5)
+        convex_lines = plotly_lines(facet_copy, dash='solid', width=4)
         data.append(convex_lines)
+
+    # plot surfaces for potential-energy envolope
+    for facet_cord in facet_cord_list:
+        # facet = plotly_facet(facet_cord, color='royalblue')
+        # facet = plotly_facet(facet_cord, color='rgb(158,185,243)')
+        # facet = plotly_facet(facet_cord, color='rgb(180, 80, 80)')
+        # facet = plotly_facet(facet_cord, color='rgb(226, 104, 95)')
+        # facet = plotly_facet(facet_cord, color='rgb(194, 48, 30)')
+        # facet = plotly_facet(facet_cord, color='tomato')
+        # facet = plotly_facet(facet_cord, color='orangered')
+        facet = plotly_facet(facet_cord, color='rgb(146,197,222)')
+        # facet = plotly_facet(facet_cord, color='rgb(106, 118, 252)')
+        data.append(facet)
+
+    # plot the convex hull
+    # polyhedron = plotly_polyhedron(nodes_stable)
+    # envolope = plotly_surface(nodes_stable)
+    # data.append(envolope)
 
     # plot edges for convex hull
-    for facet in simplices_cord:
-        convex_lines = plotly_lines(facet, dash='dash', width=2)
-        data.append(convex_lines)
-
-    # plot pillars
-    # for pillar in zip(nodes_bottom[-3:], nodes_top[-3:]):
-    #     convex_lines = plotly_lines(pillar, dash='longdash')
+    # for facet in simplices_cord:
+    #     convex_lines = plotly_lines(facet, dash='dash', width=2)
     #     data.append(convex_lines)
 
-    # plot surfaces
-    polyhedron = plotly_polyhedron(nodes_hull)
-    data.append(polyhedron)
-
     layout = dict(
-        # title = '<b>Ternary Phase Diagram</b>',
         title_x = 0.5,
         scene = dict(xaxis = dict(zeroline=False, showticklabels=False, showgrid=False, showline=False, title = {'text':''}, visible=False),
                     yaxis = dict(zeroline=False, showticklabels=False, showgrid=False, showline=False, title = {'text':''}, visible=False),
-                    # visible=False, showaxeslabels=False,
                     zaxis = dict(zeroline=False, showticklabels=False, showgrid=False, showline=False, title = {'text':''}, visible=False),
                     camera= dict(eye = dict(x=2.0, y=1.0, z=0.5)),
                     ),
@@ -175,7 +173,6 @@ def plot_convex_hull(chemsys):
     )
 
     fig = dict(data=data, layout=layout)
-    plotly.io.write_image(fig, '{fn}.png'.format(fn=chemsys), scale=8)
     plotly.offline.plot(fig, filename='{fn}.html'.format(fn=chemsys), show_link=False, auto_open=False)
 
 def main():

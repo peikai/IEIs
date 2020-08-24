@@ -67,7 +67,7 @@ def get_phase_diagram_in_chemsys(chemsys):
             print('MRPestError, retry!')
     return phase_diagram
 
-key_element = 'Li'
+key_element = 'K'
 # find entries in Lithium-compounds-free Lithium phases diagrams
 elements_in_periodic_table = pd.read_csv('tables\element_list.csv')
 ## elements consist of tielined pure elements

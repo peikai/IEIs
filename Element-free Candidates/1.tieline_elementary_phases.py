@@ -3,7 +3,7 @@ from pymatgen import Composition, MPRester
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from tqdm import tqdm
 
-key_element = 'Na'
+key_element = 'Li'
 
 # search for stable elementary phases
 with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:

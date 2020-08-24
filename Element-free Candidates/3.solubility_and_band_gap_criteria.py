@@ -39,7 +39,7 @@ with MPRester(api_key='7F7ezXky4RsUOimpr') as mpr:
     candidates = mpr.query(criteria={'task_id':{'$in': material_id_list}, 'band_gap':{'$gte':3.0}}, properties=['material_id', 'pretty_formula', 'band_gap', 'e_above_hull', 'theoretical', 'icsd_ids'])
     # empty!! no one can meet the requirements.
     
-candidates_dataframe = pd.DataFrame(candidates, columns=['material_id', 'pretty_formula', 'band_gap', 'e_above_hull', 'theoretical', 'icsd_ids'])
+candidates_dataframe = pd.DataFrame(candidates, columns=['material_id', 'pretty_formula', 'band_gap', 'density', 'e_above_hull', 'theoretical', 'icsd_ids'])
 
 # progress_apply instead of apply to show process bar
 # https://github.com/tqdm/tqdm
@@ -48,6 +48,6 @@ candidates_dataframe = pd.DataFrame(candidates, columns=['material_id', 'pretty_
 
 tqdm.pandas(desc="pandas_apply_process_1st")
 candidates_dataframe['e_above_hull'] = candidates_dataframe.material_id.progress_apply(recheck_e_above_hull, key_element=key_element)
-candidates_dataframe = candidates_dataframe.round({'band_gap':3,'e_above_hull':3})
+candidates_dataframe = candidates_dataframe.round({'band_gap':3,'density':3,'e_above_hull':3})
 candidates_dataframe.sort_values(by=['theoretical', 'band_gap'], ascending=[True, False], inplace=True)
 candidates_dataframe.to_csv('candidates.csv', float_format='%.3f', index=False)
