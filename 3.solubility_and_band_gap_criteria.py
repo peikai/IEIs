@@ -36,7 +36,7 @@ no_nobel_gas_dataframe = tieline_dataframe[boolean_gas]
 boolean_element = no_nobel_gas_dataframe.pretty_formula.apply(lambda x : Element(key_element) not in Composition(x).elements)
 vanishing_solubility_phases_dataframe = no_nobel_gas_dataframe[boolean_element]
 vanishing_solubility_phases_dataframe.reset_index(drop=True, inplace=True)
-vanishing_solubility_phases_dataframe.to_csv('tieline_non_solubility_and_gas.csv', index=False)
+vanishing_solubility_phases_dataframe.to_csv('tieline_without_solubility_and_gas.csv', index=False)
 
 # pick up those phases with band gap >= 3eV
 material_id_list = vanishing_solubility_phases_dataframe['material_id'].to_list()

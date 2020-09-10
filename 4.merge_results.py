@@ -81,6 +81,12 @@ facets_merged = facets_1.append(facets_2, ignore_index=True)
 facets_merged = facets_merged.drop_duplicates()
 facets_distinct = drop_subset_facets(facets_merged)
 facets_distinct.to_csv('facets_distinct_all_{element}.csv'.format(element=key_element), header=['facet'], index=False)
+# merge thermodynamic stable phases with vanishing solubility and exclude gas
+tieline_1 = pd.read_csv('tables/{element}/tieline_without_solubility_and_gas.csv'.format(element=key_element))
+tieline_2 = pd.read_csv('tables/{element}-free/tieline_distinct_without_gas.csv'.format(element=key_element))
+tieline_merged = tieline_1.append(tieline_2, ignore_index=True)
+tieline_merged = tieline_merged.drop_duplicates()
+tieline_merged.to_csv('tieline_without_solubility_and_gas_all_{element}.csv'.format(element=key_element), index=False)
 # merge candidates
 candidates_1 = pd.read_csv('tables/{element}/candidates.csv'.format(element=key_element))
 candidates_2 = pd.read_csv('tables/{element}-free/candidates.csv'.format(element=key_element))
