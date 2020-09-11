@@ -39,7 +39,7 @@ with MPRester(api_key='7F7ezXky4RsUOimpr') as mpr:
     candidates = mpr.query(criteria={'task_id':{'$in': material_id_list}, 'band_gap':{'$gte':3.0}}, properties=['material_id', 'pretty_formula', 'band_gap', 'e_above_hull', 'theoretical', 'icsd_ids'])
     # empty!! no one can meet the requirements.
     
-candidates_dataframe = pd.DataFrame(candidates, columns=['material_id', 'pretty_formula', 'band_gap', 'density', 'e_above_hull', 'theoretical', 'icsd_ids'])
+candidates_dataframe = pd.DataFrame(candidates, columns=['material_id', 'pretty_formula', 'theoretical', 'band_gap', 'density', 'e_above_hull', 'icsd_ids'])
 
 # progress_apply instead of apply to show process bar
 # https://github.com/tqdm/tqdm
