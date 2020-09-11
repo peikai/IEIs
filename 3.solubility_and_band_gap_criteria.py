@@ -42,7 +42,7 @@ vanishing_solubility_phases_dataframe.to_csv('tieline_without_solubility_and_gas
 material_id_list = vanishing_solubility_phases_dataframe['material_id'].to_list()
 with MPRester(api_key='7F7ezXky4RsUOimpr') as mpr:
     # entry id is an alias of task id
-    candidates = mpr.query(criteria={'task_id':{'$in': material_id_list}, 'band_gap':{'$gte':3.0}}, properties=['material_id', 'pretty_formula', 'band_gap', 'density', 'e_above_hull', 'theoretical', 'icsd_ids'])
+    candidates = mpr.query(criteria={'task_id':{'$in': material_id_list}, 'band_gap':{'$gte':3.0}}, properties=['material_id', 'pretty_formula', 'theoretical', 'band_gap', 'density', 'e_above_hull', 'icsd_ids'])
 
 candidates_dataframe = pd.DataFrame(candidates)
 
