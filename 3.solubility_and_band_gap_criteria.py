@@ -5,7 +5,7 @@ from retrying import retry
 from tqdm import tqdm
 
 
-@retry(stop_max_attempt_number=10)
+@retry(stop_max_attempt_number=20)
 def recheck_e_above_hull(material_id, key_element):
     try:
         with MPRester(api_key='7F7ezXky4RsUOimpr') as mpr:

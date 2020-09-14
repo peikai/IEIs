@@ -6,7 +6,7 @@ from retrying import retry
 from pymatgen import Composition, Element, MPRester
 from pymatgen.analysis.phase_diagram import PhaseDiagram, GrandPotentialPhaseDiagram
 
-@retry(stop_max_attempt_number=10)
+@retry(stop_max_attempt_number=20)
 def FullChemicalPotentialWindow(target_phase, key_element):
     chemsys = key_element + '-' + Composition(target_phase).chemical_system
     with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
@@ -41,16 +41,16 @@ def FullChemicalPotentialWindow(target_phase, key_element):
 key_element = 'Li'
 
 # [optional] only verify candidates
-# candidates_dataframe = pd.read_csv('tables/merged/candidates_all_{element}.csv'.format(element=key_element))
-# tqdm.pandas(desc="pandas_apply_process")
-# candidates_dataframe.loc[:, 'FullWindow'] = candidates_dataframe.pretty_formula.progress_apply(FullChemicalPotentialWindow, key_element=key_element)
-# candidates_dataframe.to_csv('fullwindow_candidates_all_{element}.csv'.format(element=key_element), float_format='%.3f', index=False)
-
-# [optional] verify in one single process
-candidates_dataframe = pd.read_csv('tables/merged/tieline_without_solubility_and_gas_all_{element}.csv'.format(element=key_element))
+candidates_dataframe = pd.read_csv('tables/merged/candidates_all_{element}.csv'.format(element=key_element))
 tqdm.pandas(desc="pandas_apply_process")
 candidates_dataframe.loc[:, 'FullWindow'] = candidates_dataframe.pretty_formula.progress_apply(FullChemicalPotentialWindow, key_element=key_element)
-candidates_dataframe.to_csv('fullwindow_all_{element}.csv'.format(element=key_element), float_format='%.3f', index=False)
+candidates_dataframe.to_csv('fullwindow_candidates_all_{element}.csv'.format(element=key_element), float_format='%.3f', index=False)
+
+# [optional] verify in one single process
+# candidates_dataframe = pd.read_csv('tables/merged/tieline_without_solubility_and_gas_all_{element}.csv'.format(element=key_element))
+# tqdm.pandas(desc="pandas_apply_process")
+# candidates_dataframe.loc[:, 'FullWindow'] = candidates_dataframe.pretty_formula.progress_apply(FullChemicalPotentialWindow, key_element=key_element)
+# candidates_dataframe.to_csv('fullwindow_all_{element}.csv'.format(element=key_element), float_format='%.3f', index=False)
 
 # [optional] verify in seperated processes, and merge results later
 # candidates_dataframe_1st = pd.read_csv('tables/{element}/tieline_without_solubility_and_gas.csv'.format(element=key_element))

@@ -55,7 +55,7 @@ def tieline_phases(phaseDiagram, key_element):
     return(facet_entries_list, tieline_entries_list)
 
 
-@retry(stop_max_attempt_number=12)
+@retry(stop_max_attempt_number=20)
 def get_phase_diagram_in_chemsys(chemsys):
     eventlet.monkey_patch() 
     with eventlet.Timeout(120, True):
