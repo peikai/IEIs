@@ -9,10 +9,10 @@ from pymatgen.analysis.phase_diagram import PhaseDiagram, GrandPotentialPhaseDia
 
 @retry(stop_max_attempt_number=20)
 def FullChemicalPotentialWindow(target_phase, key_element):
+    chemsys = key_element + '-' + Composition(target_phase).chemical_system
     eventlet.monkey_patch()
-    with eventlet.Timeout(seconds=120, exception=print('MRPestError, retry!')) as timeout:
+    with eventlet.Timeout(seconds=120, exception=True) as timeout:
         with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
-            chemsys = key_element + '-' + Composition(target_phase).chemical_system
             entries = mpr.get_entries_in_chemsys(chemsys)
     
     pd_closed = PhaseDiagram(entries)

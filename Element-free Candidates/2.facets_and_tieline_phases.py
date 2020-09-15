@@ -58,7 +58,7 @@ def tieline_phases(phaseDiagram, key_element):
 @retry(stop_max_attempt_number=20)
 def get_phase_diagram_in_chemsys(chemsys):
     eventlet.monkey_patch() 
-    with eventlet.Timeout(seconds=120, exception=print('MRPestError, retry!')) as timeout:
+    with eventlet.Timeout(seconds=120, exception=True) as timeout:
         with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
             entries = mpr.get_entries_in_chemsys(chemsys)
             

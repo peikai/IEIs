@@ -9,7 +9,7 @@ from tqdm import tqdm
 @retry(stop_max_attempt_number=20)
 def recheck_e_above_hull(material_id, key_element):
     eventlet.monkey_patch() 
-    with eventlet.Timeout(seconds=120, exception=print('MRPestError, retry!')) as timeout:
+    with eventlet.Timeout(seconds=120, exception=True) as timeout:
         with MPRester(api_key='7F7ezXky4RsUOimpr') as mpr:
             entry = mpr.get_entry_by_material_id(material_id)
             pretty_formula = entry.name
