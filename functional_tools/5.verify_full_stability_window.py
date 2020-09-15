@@ -44,10 +44,10 @@ def FullChemicalPotentialWindow(target_phase, key_element):
 key_element = 'Li'
 
 # [option-1] only verify candidates
-candidates_dataframe = pd.read_csv('tables/merged/candidates_all_{element}.csv'.format(element=key_element))
-tqdm.pandas(desc="pandas_apply_process")
-candidates_dataframe.loc[:, 'FullWindow'] = candidates_dataframe.pretty_formula.progress_apply(FullChemicalPotentialWindow, key_element=key_element)
-candidates_dataframe.to_csv('fullwindow_candidates_all_{element}.csv'.format(element=key_element), float_format='%.3f', index=False)
+# candidates_dataframe = pd.read_csv('tables/merged/candidates_all_{element}.csv'.format(element=key_element))
+# tqdm.pandas(desc="pandas_apply_process")
+# candidates_dataframe.loc[:, 'FullWindow'] = candidates_dataframe.pretty_formula.progress_apply(FullChemicalPotentialWindow, key_element=key_element)
+# candidates_dataframe.to_csv('fullwindow_candidates_all_{element}.csv'.format(element=key_element), float_format='%.3f', index=False)
 
 # [option-2] verify in one single process
 candidates_dataframe = pd.read_csv('tables/merged/tieline_without_solubility_and_gas_all_{element}.csv'.format(element=key_element))

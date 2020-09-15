@@ -87,17 +87,16 @@ tieline_2 = pd.read_csv('tables/{element}-free/tieline_distinct_without_gas.csv'
 tieline_merged = tieline_1.append(tieline_2, ignore_index=True)
 tieline_merged = tieline_merged.drop_duplicates()
 tieline_merged.to_csv('tieline_without_solubility_and_gas_all_{element}.csv'.format(element=key_element), index=False)
-
-# [optional] merge full stability window verifications
-# tieline_1 = pd.read_csv('tables/{element}/fullwindow.csv'.format(element=key_element))
-# tieline_2 = pd.read_csv('tables/{element}-free/fullwindow.csv'.format(element=key_element))
-# tieline_merged = tieline_1.append(tieline_2, ignore_index=True)
-# tieline_merged = tieline_merged.drop_duplicates()
-# tieline_merged.to_csv('fullwindow_all_{element}.csv'.format(element=key_element), index=False)
-
 # merge candidates
 candidates_1 = pd.read_csv('tables/{element}/candidates.csv'.format(element=key_element))
 candidates_2 = pd.read_csv('tables/{element}-free/candidates.csv'.format(element=key_element))
 candidates_merged = candidates_1.append(candidates_2, ignore_index=True)
 candidates_merged = candidates_merged.drop_duplicates()
 candidates_merged.to_csv('candidates_all_{element}.csv'.format(element=key_element), float_format='%.3f', index=False)
+
+# [optional] merge full stability window verifications, Note, to use this option, run 5.verifyfullwindow-option-3 first
+tieline_1 = pd.read_csv('tables/{element}/fullwindow.csv'.format(element=key_element))
+tieline_2 = pd.read_csv('tables/{element}-free/fullwindow.csv'.format(element=key_element))
+tieline_merged = tieline_1.append(tieline_2, ignore_index=True)
+tieline_merged = tieline_merged.drop_duplicates()
+tieline_merged.to_csv('fullwindow_all_{element}.csv'.format(element=key_element), index=False)
