@@ -2,26 +2,26 @@ import pandas as pd
 from pymatgen import Composition, Element, MPRester
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from retrying import retry
+import eventlet
 from tqdm import tqdm
 
 
 @retry(stop_max_attempt_number=20)
 def recheck_e_above_hull(material_id, key_element):
-    try:
+    eventlet.monkey_patch() 
+    with eventlet.Timeout(seconds=120, exception=print('MRPestError, retry!')) as timeout:
         with MPRester(api_key='7F7ezXky4RsUOimpr') as mpr:
             entry = mpr.get_entry_by_material_id(material_id)
             pretty_formula = entry.name
             chemsys = Composition(pretty_formula).chemical_system + '-' + key_element
             entries = mpr.get_entries_in_chemsys(chemsys)
-    except:
-        print('MRPestError, retry!')
-        
+    
     phase_diagram = PhaseDiagram(entries)
     e_above_hull = phase_diagram.get_e_above_hull(entry)
     # to avoid kind of values -1.77635683940025E-15, and -0.000 after rounded
     if 0 > e_above_hull >= -phase_diagram.numerical_tol:
         e_above_hull = 0.0
-
+        
     return(e_above_hull)
 
 
