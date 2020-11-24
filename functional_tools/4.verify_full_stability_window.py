@@ -44,23 +44,13 @@ def FullChemicalPotentialWindow(target_phase, key_element):
 key_element = 'Li'
 
 # [option-1] only verify candidates
-# candidates_dataframe = pd.read_csv('tables/merged/candidates_all_{element}.csv'.format(element=key_element))
+# candidates_dataframe = pd.read_csv('Tables/{element}/candidates.csv'.format(element=key_element))
 # tqdm.pandas(desc="pandas_apply_process")
 # candidates_dataframe.loc[:, 'FullWindow'] = candidates_dataframe.pretty_formula.progress_apply(FullChemicalPotentialWindow, key_element=key_element)
-# candidates_dataframe.to_csv('fullwindow_candidates_all_{element}.csv'.format(element=key_element), float_format='%.3f', index=False)
+# candidates_dataframe.to_csv('fullwindow_candidates.csv', float_format='%.3f', index=False)
 
-# [option-2] verify in one single process
-candidates_dataframe = pd.read_csv('tables/merged/tieline_without_solubility_and_gas_all_{element}.csv'.format(element=key_element))
+# [option-2] verify all tielined phases in one single process, in which noble gases and lithium compounds have been excluded.
+candidates_dataframe = pd.read_csv('Tables/{element}/tieline_without_solubility_and_gas.csv'.format(element=key_element))
 tqdm.pandas(desc="pandas_apply_process")
 candidates_dataframe.loc[:, 'FullWindow'] = candidates_dataframe.pretty_formula.progress_apply(FullChemicalPotentialWindow, key_element=key_element)
-candidates_dataframe.to_csv('fullwindow_all_{element}.csv'.format(element=key_element), float_format='%.3f', index=False)
-
-# [option-3] verify in seperated processes, and merge results later
-# candidates_dataframe_1st = pd.read_csv('tables/{element}/tieline_without_solubility_and_gas.csv'.format(element=key_element))
-# tqdm.pandas(desc="pandas_apply_process_1st")
-# candidates_dataframe_1st.loc[:, 'FullWindow'] = candidates_dataframe_1st.pretty_formula.progress_apply(FullChemicalPotentialWindow, key_element=key_element)
-# candidates_dataframe_1st.to_csv('fullwindow_{element}.csv'.format(element=key_element), float_format='%.3f', index=False)
-# candidates_dataframe_2nd = pd.read_csv('tables/{element}-free/tieline_distinct_without_gas.csv'.format(element=key_element))
-# tqdm.pandas(desc="pandas_apply_process_2nd")
-# candidates_dataframe_2nd.loc[:, 'FullWindow'] = candidates_dataframe_2nd.pretty_formula.progress_apply(FullChemicalPotentialWindow, key_element=key_element)
-# candidates_dataframe_2nd.to_csv('fullwindow_{element}_free.csv'.format(element=key_element), float_format='%.3f', index=False)
+candidates_dataframe.to_csv('fullwindow.csv', float_format='%.3f', index=False)

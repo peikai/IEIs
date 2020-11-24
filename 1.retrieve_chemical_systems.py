@@ -1,6 +1,5 @@
-import numpy as np
+from pymatgen import MPRester
 import pandas as pd
-from pymatgen import Composition, MPRester
 
 
 def drop_subset_chemsys(chemsys_series):
@@ -12,7 +11,7 @@ def drop_subset_chemsys(chemsys_series):
     chemsys_list = chemsys_series.to_list()
     # prepare a dataframe to store other info
     chemsys_dataframe = chemsys_series.to_frame(name='elements')
-    # chemsys_dataframe = pd.DataFrame(chemsys_series, columns=['elements'])
+    ## chemsys_dataframe = pd.DataFrame(chemsys_series, columns=['pretty_formula'])
     chemsys_dataframe['distinct'] = 'null'
     # like, A-B is not a subset of any chemsys, then store A-B
     for index, row in chemsys_series.iteritems():
@@ -21,23 +20,17 @@ def drop_subset_chemsys(chemsys_series):
         if not boolean.count(True) > 1:
             chemsys_dataframe.loc[index, 'distinct'] = True
 
-    chemsys_distinct_dataframe = chemsys_dataframe.loc[chemsys_dataframe['distinct'] == True] 
+    chemsys_distinct_dataframe = chemsys_dataframe.loc[chemsys_dataframe['distinct'] == True]
     chemsys_distinct_dataframe.loc[:, 'chemsys'] = chemsys_distinct_dataframe.elements.apply(lambda x : '-'.join(x))
     chemsys_distinct_series = chemsys_distinct_dataframe['chemsys']
-    # sort chemical system is a fixed order
     chemsys_distinct_series = chemsys_distinct_series.apply(lambda x: '-'.join(sorted(x.split('-'))))
     return chemsys_distinct_series
-       
 
 key_element = 'Li'
-# search for Li-containing phases
-with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
-    entries = mpr.query(criteria={'elements':{'$all': [key_element]}, 'e_above_hull':{'$eq':0}}, properties=['material_id', 'pretty_formula'])
 
-entries_dataframe = pd.DataFrame(entries)
-# join element in chemsys str, then drop duplicated chemsys
-chemsys_all = entries_dataframe.pretty_formula.apply(lambda x : '-'.join([e.name for e in Composition(x).elements]))
-chemsys_all.drop_duplicates(inplace=True)
-# remove subsets
-chemsys_all = drop_subset_chemsys(chemsys_all)
-chemsys_all.to_csv('chemsys.csv', header=['chemsys'], index=False)
+with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
+    chemsys = mpr.query(criteria={'elements':{'$in':[key_element]}}, properties=['chemsys'])
+chemsys_dataframe = pd.DataFrame(chemsys).drop_duplicates()
+
+chemsys_distinct = drop_subset_chemsys(chemsys_dataframe['chemsys'])
+chemsys_distinct.to_csv('chemsys_distinct.csv', header=['chemsys'], index=False)

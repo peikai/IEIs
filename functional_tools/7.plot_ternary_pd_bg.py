@@ -54,7 +54,8 @@ def makeAxis(title, tickangle):
 # chemsys = 'Li-Lu-O'
 # chemsys = 'Fe-Lu-Li'
 # chemsys = 'Co-Nd-Li'
-chemsys = 'Be-Mo-Li'
+# chemsys = 'Be-Mo-Li'
+chemsys = 'Ba-Cl-Li'
 
 with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
     entries = mpr.get_entries_in_chemsys(chemsys)

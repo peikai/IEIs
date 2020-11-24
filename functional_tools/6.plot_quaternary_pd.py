@@ -33,9 +33,15 @@ def tieline_phases(phaseDiagram, key_element):
     return(facet_list)
 
 # chemsys = 'Hf-W-Tc-Li'
-chemsys = 'Li-Hf-W-Se'
+# chemsys = 'Li-Hf-W-Se'
 # chemsys = 'Li-Lu-O-W'
-# chemsys = 'Li-Sr-C-N'
+# chemsys = 'Li-Ba-Cl-O'
+# chemsys = 'S-O-Er-Li'
+chemsys = 'S-O-Ho-Li'
+# chemsys = 'S-O-Tb-Li'
+# chemsys = 'S-O-Dy-Li'
+# chemsys = 'S-O-Sm-Li'
+# chemsys = 'S-O-Nd-Li'
 
 with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
     entries = mpr.get_entries_in_chemsys(chemsys)

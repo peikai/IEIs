@@ -6,7 +6,8 @@ def metals_only(phase):
     metal_boolean_list = [Element(e).is_metal for e in elements_list]
     return False not in metal_boolean_list
 
-phase_list = pd.read_csv('tables/Merged/tieline_distinct_all_Li.csv', usecols=['pretty_formula'])
+key_element = 'Li'
+phase_list = pd.read_csv('Tables/{element}/tieline_distinct.csv'.formate(element=key_element), usecols=['pretty_formula'])
 # marking those alloys comprise only with metals, thus we can analyze the tpye of the rest phases convinently
 phase_list['metalsOnly'] = phase_list.pretty_formula.apply(metals_only)
 phase_list = phase_list.loc[phase_list['metalsOnly'] == False]
