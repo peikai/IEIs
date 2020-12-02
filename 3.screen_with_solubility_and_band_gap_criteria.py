@@ -14,6 +14,7 @@ def recheck_e_above_hull(material_id, key_element):
             entry = mpr.get_entry_by_material_id(material_id)
             pretty_formula = entry.name
             chemsys = Composition(pretty_formula).chemical_system + '-' + key_element
+            # using GGA and GGA+U mixed scheme as default, namely compatible_only=True
             entries = mpr.get_entries_in_chemsys(chemsys)
     
     phase_diagram = PhaseDiagram(entries)
