@@ -1,12 +1,8 @@
 import numpy as np
 import pandas
 import plotly
-import plotly.graph_objects as go
 from pymatgen import Composition, MPRester
-from pymatgen.analysis.phase_diagram import (PDPlotter, PhaseDiagram,
-                                             tet_coord, triangular_coord, get_facets)
-from scipy.spatial import ConvexHull, Delaunay
-
+from pymatgen.analysis.phase_diagram import PhaseDiagram
 
 def merge_facet(convexhull):
     # index each equiation with a feature
@@ -25,14 +21,6 @@ def merge_facet(convexhull):
         facet_list.append(facet_points)
         
     return(facet_list)
-
-
-# def plotly_polyhedron(polyhedron):
-#     polyhedron= np.vstack(polyhedron)
-#     x, y, z = [polyhedron[:,0], polyhedron[:,1], polyhedron[:,2]]
-#     convex_polyhedon = dict(x=x, y=y, z=z, type= 'mesh3d', alphahull=0, opacity=0.2, color="rgb(106, 90, 205)", lightposition=dict(z=1000))
-
-#     return(convex_polyhedon)
 
 def plotly_facet(facet_cord, color):
     x, y, z = facet_cord.T
@@ -88,13 +76,19 @@ def plot_convex_hull(chemsys):
     nodes_stable_z = stable_energy[:,np.newaxis]
     nodes_stable = np.insert(stable_cord_xy, [2], values=nodes_stable_z, axis=1)
 
-    # unstable entries that under the hull
-    qhull_data_dataframe = pandas.DataFrame(qhull_data)
-    unstable_array = qhull_data_dataframe.append(pandas.DataFrame(nodes_stable)).drop_duplicates(keep=False).to_numpy()
-
     data = []
 
-    # plot scatters
+    # plot scatters of stable nodes
+    scatter_vertices = dict(
+        mode = "markers",
+        name = 'nodes_stable',
+        type = "scatter3d",
+        x = nodes_stable[:,0], y = nodes_stable[:,1], z = nodes_stable[:,2],
+        marker = dict(size=6, color="rgb(67, 147, 195)")
+    )
+    data.append(scatter_vertices)
+
+    # plot scatters of projected nodes
     scatter_vertices = dict(
         mode = "markers",
         name = 'nodes_projected',
@@ -103,29 +97,6 @@ def plot_convex_hull(chemsys):
         marker = dict(size=6, color="rgb(50,50,50)")
     )
     data.append(scatter_vertices)
-
-    scatter_vertices = dict(
-        mode = "markers",
-        name = 'nodes_stable',
-        type = "scatter3d",
-        x = nodes_stable[:,0], y = nodes_stable[:,1], z = nodes_stable[:,2],
-        # marker = dict(size=8, color="rgb(106, 90, 205)")
-        # marker = dict(size=6, color="limegreen")
-        marker = dict(size=6, color="rgb(67, 147, 195)")
-        # marker = dict(size=8, color="rgb(47, 6, 150)")
-        # marker = dict(size=8, color="rgb(214, 204, 35)")
-        # marker = dict(size=8, color="rgb(97, 49, 150)")
-    )
-    data.append(scatter_vertices)
-
-    # scatter_vertices = dict(
-    #     mode = "markers",
-    #     name = 'unstable_nodes',
-    #     type = "scatter3d",
-    #     x = unstable_array[:,0], y = unstable_array[:,1], z = unstable_array[:,2],
-    #     marker = dict(size=8, color="rgb(169, 169, 169)")
-    # )
-    # data.append(scatter_vertices)
 
     # plot edges of facets
     for facet in facet_cord_list:
@@ -141,26 +112,8 @@ def plot_convex_hull(chemsys):
 
     # plot surfaces for potential-energy envolope
     for facet_cord in facet_cord_list:
-        # facet = plotly_facet(facet_cord, color='royalblue')
-        # facet = plotly_facet(facet_cord, color='rgb(158,185,243)')
-        # facet = plotly_facet(facet_cord, color='rgb(180, 80, 80)')
-        # facet = plotly_facet(facet_cord, color='rgb(226, 104, 95)')
-        # facet = plotly_facet(facet_cord, color='rgb(194, 48, 30)')
-        # facet = plotly_facet(facet_cord, color='tomato')
-        # facet = plotly_facet(facet_cord, color='orangered')
         facet = plotly_facet(facet_cord, color='rgb(146,197,222)')
-        # facet = plotly_facet(facet_cord, color='rgb(106, 118, 252)')
         data.append(facet)
-
-    # plot the convex hull
-    # polyhedron = plotly_polyhedron(nodes_stable)
-    # envolope = plotly_surface(nodes_stable)
-    # data.append(envolope)
-
-    # plot edges for convex hull
-    # for facet in simplices_cord:
-    #     convex_lines = plotly_lines(facet, dash='dash', width=2)
-    #     data.append(convex_lines)
 
     layout = dict(
         title_x = 0.5,
@@ -177,11 +130,11 @@ def plot_convex_hull(chemsys):
 
 def main():
     # plot in batch
-    # pretty_formula_list = pandas.read_csv('tables/Li/Li_candidates_calc.csv').pretty_formula.to_list()
-    # chemsys_list = [Composition(each).chemical_system+'-Li' for each in pretty_formula_list if len(Composition(each).elements)==2]
-    # for i, chemsys in enumerate(chemsys_list):
-    #     plot_convex_hull(chemsys)
-    #     print('{I}/{L}'.format(I=i+1, L=len(chemsys_list)))
+        # pretty_formula_list = pandas.read_csv('tables/Li/candidates.csv').pretty_formula.to_list()
+        # chemsys_list = [Composition(each).chemical_system+'-Li' for each in pretty_formula_list if len(Composition(each).elements)==2]
+        # for i, chemsys in enumerate(chemsys_list):
+        #     plot_convex_hull(chemsys)
+        #     print('{I}/{L}'.format(I=i+1, L=len(chemsys_list)))
     
     # plot a given chemical system
     chemsys = 'O-Lu-Li'
