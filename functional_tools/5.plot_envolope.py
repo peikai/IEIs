@@ -1,8 +1,11 @@
+from itertools import combinations
+
 import numpy as np
 import pandas
 import plotly
 from pymatgen import Composition, MPRester
 from pymatgen.analysis.phase_diagram import PhaseDiagram
+
 
 def merge_facet(convexhull):
     # index each equiation with a feature
@@ -20,7 +23,7 @@ def merge_facet(convexhull):
         facet_points = convexhull.points[facet_merged]
         facet_list.append(facet_points)
         
-    return(facet_list)
+    return facet_list
 
 def plotly_facet(facet_cord, color):
     x, y, z = facet_cord.T
@@ -29,10 +32,9 @@ def plotly_facet(facet_cord, color):
 
 def plotly_lines(line_nodes, dash, width):
     # To make lines a loop.
-    line_nodes = np.vstack((line_nodes, line_nodes[0]))
     x, y, z = [line_nodes[:,0], line_nodes[:,1], line_nodes[:,2]]
     lines=dict(x=x, y=y, z=z, mode='lines', type='scatter3d', showlegend=False, line=dict(dash=dash, color='rgb(50,50,50)', width=width))
-    return(lines)
+    return lines
 
 def tieline_phases(phaseDiagram, key_element):
     # find its coordinate in phase diagram
@@ -44,7 +46,7 @@ def tieline_phases(phaseDiagram, key_element):
     for f, s in zip(phaseDiagram.facets, phaseDiagram.simplexes):
         if s.in_simplex(c, PhaseDiagram.numerical_tol / 10):
             facet_list.append(f)
-    return(facet_list)
+    return facet_list
 
 def plot_convex_hull(chemsys):
     with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
@@ -98,16 +100,22 @@ def plot_convex_hull(chemsys):
     )
     data.append(scatter_vertices)
 
-    # plot edges of facets
+    # merge edges and remove duplicates
+    edge_list = []
     for facet in facet_cord_list:
-        # plot facets on the top
-        convex_lines = plotly_lines(facet, dash='solid', width=4)
+        edge_list.extend(list(combinations(facet, 2)))
+    edge_array = np.array(edge_list)
+    edge_array = np.unique(edge_array, axis=0)
+    # plot edges of facets
+    for edge in edge_array:
+        # plot edges on the top
+        convex_lines = plotly_lines(edge, dash='solid', width=4)
         data.append(convex_lines)
         # change z to zero, project facets to bottom
-        facet_copy = facet.copy()
-        facet_copy[:,2] = 0
+        edge_copy = edge.copy()
+        edge_copy[:,2] = 0
         # plot facets projections
-        convex_lines = plotly_lines(facet_copy, dash='solid', width=4)
+        convex_lines = plotly_lines(edge_copy, dash='solid', width=4)
         data.append(convex_lines)
 
     # plot surfaces for potential-energy envolope
@@ -129,14 +137,14 @@ def plot_convex_hull(chemsys):
     plotly.offline.plot(fig, filename='{fn}.html'.format(fn=chemsys), show_link=False, auto_open=False)
 
 def main():
-    # plot in batch
+    # [option] plot in batch
         # pretty_formula_list = pandas.read_csv('tables/Li/candidates.csv').pretty_formula.to_list()
         # chemsys_list = [Composition(each).chemical_system+'-Li' for each in pretty_formula_list if len(Composition(each).elements)==2]
         # for i, chemsys in enumerate(chemsys_list):
         #     plot_convex_hull(chemsys)
         #     print('{I}/{L}'.format(I=i+1, L=len(chemsys_list)))
     
-    # plot a given chemical system
+    # [option] plot a given chemical system
     chemsys = 'O-Lu-Li'
     plot_convex_hull(chemsys)
 
