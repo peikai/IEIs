@@ -1,3 +1,5 @@
+import os
+import pickle
 from itertools import combinations
 
 import numpy as np
@@ -6,54 +8,29 @@ import plotly
 from pymatgen import Composition, MPRester
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 
-
-def merge_facet(convexhull):
-    # index each equiation with a feature
-    equitions = convexhull.equations
-    id_list = [(each[0]*1 + each[1]*2 + each[2]*3 + each[3]*4) for each in convexhull.equations]
-    dataframe = pandas.DataFrame(equitions)
-    dataframe['id'] = id_list
-    # find facets with the same hyperplane equation
-    unique_id = np.unique(id_list)
-    facet_list = []
-    for id in unique_id:
-        index_list = dataframe[dataframe.loc[:,'id'] == id].index
-        facet_array = convexhull.simplices[index_list]
-        facet_merged = np.unique(facet_array)
-        facet_points = convexhull.points[facet_merged]
-        facet_list.append(facet_points)
-        
-    return facet_list
-
-def plotly_facet(facet_cord, color):
-    x, y, z = facet_cord.T
-    facet = dict(x = x, y = y, z = z, type='mesh3d', color=color, opacity=0.8) #lightposition=dict(x=4000, y=-300, z=400)
-    return facet
-
 def plotly_lines(line_nodes, dash, width):
-    # To make lines a loop.
     x, y, z = [line_nodes[:,0], line_nodes[:,1], line_nodes[:,2]]
     lines=dict(x=x, y=y, z=z, mode='lines', type='scatter3d', showlegend=False, line=dict(dash=dash, color='rgb(50,50,50)', width=width))
     return lines
 
-def tieline_phases(phaseDiagram, key_element):
-    # find its coordinate in phase diagram
-    comp = Composition(key_element)
-    c = phaseDiagram.pd_coords(comp)
-    # find facets that key element acted as a vertice
-    # vertices of facets are stable phases
-    facet_list = list()
-    for f, s in zip(phaseDiagram.facets, phaseDiagram.simplexes):
-        if s.in_simplex(c, PhaseDiagram.numerical_tol / 10):
-            facet_list.append(f)
-    return facet_list
+def plotly_hulls(x, y, z, i, j, k, color):
+    hull = dict(x=x, y=y, z=z, i=i, j=j, k=k, type='mesh3d', opacity=1, color=color,
+                lighting=dict(ambient=0.8, diffuse=1, specular=1), 
+                lightposition=dict(x=100000, y=100000, z=-100000))
+    return hull
 
-def plot_convex_hull(chemsys):
-    with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
-        entries = mpr.get_entries_in_chemsys(chemsys)
+def REST_local(chemsys):
+    if not os.path.exists('temp/entries_{v}.pickle'.format(v=chemsys)):
+        with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
+            entries = mpr.get_entries_in_chemsys(chemsys)
+        with open('temp/entries_{v}.pickle'.format(v=chemsys), 'wb') as entries_local:
+            pickle.dump(entries, entries_local)
+    else:
+        with open('temp/entries_{v}.pickle'.format(v=chemsys), 'rb') as entries_temp:
+            entries = pickle.load(entries_temp)
+    return entries
 
-    pd = PhaseDiagram(entries)
-
+def plot_envolope(pd):
     # get original qhull data
     qhull_data = pd.qhull_data
 
@@ -78,6 +55,7 @@ def plot_convex_hull(chemsys):
     nodes_stable_z = stable_energy[:,np.newaxis]
     nodes_stable = np.insert(stable_cord_xy, [2], values=nodes_stable_z, axis=1)
 
+    # plot section
     data = []
 
     # plot scatters of stable nodes
@@ -118,10 +96,11 @@ def plot_convex_hull(chemsys):
         convex_lines = plotly_lines(edge_copy, dash='solid', width=4)
         data.append(convex_lines)
 
-    # plot surfaces for potential-energy envolope
-    for facet_cord in facet_cord_list:
-        facet = plotly_facet(facet_cord, color='rgb(146,197,222)')
-        data.append(facet)
+    # plot potential-energy envolope, see https://plotly.com/python/3d-mesh/
+    x, y, z = qhull_data.T
+    i, j, k = np.array(facet_vertices).T
+    hull = plotly_hulls(x,y,z,i,j,k,color='rgb(146,197,222)')
+    data.append(hull)
 
     layout = dict(
         title_x = 0.5,
@@ -134,19 +113,22 @@ def plot_convex_hull(chemsys):
     )
 
     fig = dict(data=data, layout=layout)
-    plotly.offline.plot(fig, filename='{fn}.html'.format(fn=chemsys), show_link=False, auto_open=False)
+    return fig
 
 def main():
     # [option] plot in batch
         # pretty_formula_list = pandas.read_csv('tables/Li/candidates.csv').pretty_formula.to_list()
         # chemsys_list = [Composition(each).chemical_system+'-Li' for each in pretty_formula_list if len(Composition(each).elements)==2]
         # for i, chemsys in enumerate(chemsys_list):
-        #     plot_convex_hull(chemsys)
+        #     plot_envolope(chemsys)
         #     print('{I}/{L}'.format(I=i+1, L=len(chemsys_list)))
     
     # [option] plot a given chemical system
     chemsys = 'O-Lu-Li'
-    plot_convex_hull(chemsys)
+    entries = REST_local(chemsys)
+    pd = PhaseDiagram(entries)
+    fig = plot_envolope(pd)
+    plotly.offline.plot(fig, filename='{fn}.html'.format(fn=chemsys), show_link=False, auto_open=False)
 
 if __name__ == "__main__":
     main()
