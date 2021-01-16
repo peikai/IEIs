@@ -1,9 +1,9 @@
 from pymatgen import Composition
 from pymatgen import MPRester, Composition
-from pymatgen.analysis.phase_diagram import PDPlotter, PhaseDiagram, tet_coord
+from pymatgen.analysis.phase_diagram import PhaseDiagram, tet_coord
 import numpy as np
-import plotly.graph_objects as go
 import plotly
+import os, pickle
 from scipy.spatial import ConvexHull
 from itertools import combinations
 
@@ -32,113 +32,120 @@ def tieline_phases(phaseDiagram, key_element):
             facet_list.append(f)
     return(facet_list)
 
-# chemsys = 'Hf-W-Tc-Li'
-# chemsys = 'Li-Hf-W-Se'
-# chemsys = 'Li-Lu-O-W'
-# chemsys = 'Li-Ba-Cl-O'
-# chemsys = 'S-O-Er-Li'
-chemsys = 'S-O-Ho-Li'
-# chemsys = 'S-O-Tb-Li'
-# chemsys = 'S-O-Dy-Li'
-# chemsys = 'S-O-Sm-Li'
-# chemsys = 'S-O-Nd-Li'
+def REST_local(chemsys):
+    if not os.path.exists('temp/entries_{v}.pickle'.format(v=chemsys)):
+        with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
+            entries = mpr.get_entries_in_chemsys(chemsys)
+        with open('temp/entries_{v}.pickle'.format(v=chemsys), 'wb') as entries_local:
+            pickle.dump(entries, entries_local)
+    else:
+        with open('temp/entries_{v}.pickle'.format(v=chemsys), 'rb') as entries_temp:
+            entries = pickle.load(entries_temp)
+    return entries
 
-with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
-    entries = mpr.get_entries_in_chemsys(chemsys)
+def plot_quaternary_pd(pd):
+    # different length but not at all
+    entries = pd.qhull_entries
+    qhull_data = pd.qhull_data
+    qhull_data = np.delete(qhull_data, -1, axis=0)
 
-pd = PhaseDiagram(entries)
+    qhull_cord = np.vstack([tet_coord(qhull_data[i, 0:3]) for i in range(qhull_data.shape[0])])
+    facet_vertices = pd.facets
+    qhull_stable = [qhull_cord[each] for each in facet_vertices]
 
-# different length but not at all
-entries = pd.qhull_entries
-qhull_data = pd.qhull_data
-qhull_data = np.delete(qhull_data, -1, axis=0)
+    data = []
 
-qhull_cord = np.vstack([tet_coord(qhull_data[i, 0:3]) for i in range(qhull_data.shape[0])])
-facet_vertices = pd.facets
-qhull_stable = [qhull_cord[each] for each in facet_vertices]
+    # plot dash segment lines between nodes
+    line_list = []
+    for qhull in qhull_stable:
+        polyhedron = qhull[:,0:3]
+        hull = ConvexHull(polyhedron)
+        for simplex in hull.simplices:
+            facet = polyhedron[simplex]
+            lines = list(combinations(facet, 2))
+            lines = [np.array(l) for l in lines]
+            for line in lines:
+                duplicate_boolean = [(line.round(3) == l.round(3)).all() for l in line_list]
+                if not True in duplicate_boolean:
+                    line_list.append(line)
 
-data = []
-
-# plot dash segment lines between nodes
-line_list = []
-for qhull in qhull_stable:
-    polyhedron = qhull[:,0:3]
-    hull = ConvexHull(polyhedron)
-    for simplex in hull.simplices:
-        facet = polyhedron[simplex]
-        lines = list(combinations(facet, 2))
-        lines = [np.array(l) for l in lines]
-        for line in lines:
-            duplicate_boolean = [(line.round(3) == l.round(3)).all() for l in line_list]
-            if not True in duplicate_boolean:
-                line_list.append(line)
-
-for line in line_list:
-    convex_lines = plotly_lines(line, 'dash')
-    data.append(convex_lines)
-
-# The line visible on the front should be drawn as solid lines
-# which should be customized for a give chemsys
-# of course, this part below can be commented out, if solid lines are unnecessary
-#######################################################
-facet_front = [[[0.5       , 0.8660254 , 0.        ],
-                [0.        , 0.        , 0.        ],
-                [0.16666667, 0.09622504, 0.27216553]],
-               [[0.5       , 0.8660254 , 0.        ],
-                [0.5       , 0.48112522, 0.54433105],
-                [0.16666667, 0.09622504, 0.27216553]],
-               [[0.16666667, 0.09622504, 0.27216553],
-                [0.5       , 0.48112522, 0.54433105],
-                [0.5       , 0.28867513, 0.81649658]]]
-
-for facet in facet_front:
-    lines_front = list(combinations(facet, 2))
-    lines_front = [np.array(l) for l in lines_front]
-    for line in lines_front:
-        convex_lines = plotly_lines(line, 'solid')
+    for line in line_list:
+        convex_lines = plotly_lines(line, 'dash')
         data.append(convex_lines)
-##################################################
 
-facet_element = tieline_phases(pd, 'Li')
-qhull_element = np.array([qhull_cord[each] for each in facet_element])
+    # The line visible on the front should be drawn as solid lines
+    # which should be customized for a give chemsys. Comment them out at the first run.
+    # of course, this part below can be commented out, if solid lines are unnecessary
+    #######################################################
+    facet_front = [[[0.5       , 0.8660254 , 0.        ],
+                    [0.        , 0.        , 0.        ],
+                    [0.16666667, 0.09622504, 0.27216553]],
+                   [[0.5       , 0.8660254 , 0.        ],
+                    [0.5       , 0.48112522, 0.54433105],
+                    [0.16666667, 0.09622504, 0.27216553]],
+                   [[0.16666667, 0.09622504, 0.27216553],
+                    [0.5       , 0.48112522, 0.54433105],
+                    [0.5       , 0.28867513, 0.81649658]]]
 
-colors = np.arange(len(qhull_element))
-for qhull, color in zip(qhull_element, colors):
-    polyhedron = qhull[:,0:3]
-    convex_polyhedon = plotly_polyhedron(polyhedron, color=color)
-    data.append(convex_polyhedon)
+    for facet in facet_front:
+        lines_front = list(combinations(facet, 2))
+        lines_front = [np.array(l) for l in lines_front]
+        for line in lines_front:
+            convex_lines = plotly_lines(line, 'solid')
+            data.append(convex_lines)
+    ##################################################
 
-# add node points
-nodes_index = np.array(facet_vertices).flatten()
-nodes_index = np.unique(nodes_index)
-nodes_name = np.array([entries[each].name for each in nodes_index])
-nodes_array = np.vstack([qhull_cord[each] for each in nodes_index])
+    facet_element = tieline_phases(pd, 'Li')
+    qhull_element = np.array([qhull_cord[each] for each in facet_element])
 
-scatter_vertices = dict(
-    mode = "markers",
-    name = 'nodes',
-    type = "scatter3d",
-    x = nodes_array[:,0], y = nodes_array[:,1], z = nodes_array[:,2],
-    # marker = dict(size=5, color="rgb(106, 90, 205)")
-    marker = dict(size=6, color="rgb(50,50,50)")
-)
-data.append(scatter_vertices)
+    colors = np.arange(len(qhull_element))
+    for qhull, color in zip(qhull_element, colors):
+        polyhedron = qhull[:,0:3]
+        convex_polyhedon = plotly_polyhedron(polyhedron, color=color)
+        data.append(convex_polyhedon)
 
-layout = dict(
-    # title = '<b>Quaternary Phase Diagram</b>',
-    title_x = 0.5,
-    scene = dict(xaxis = dict(zeroline=False, showticklabels=False, showgrid=False, showline=False, title = {'text':''}, visible=False),
-                 yaxis = dict(zeroline=False, showticklabels=False, showgrid=False, showline=False, title = {'text':''}, visible=False),
-                # visible=False, showaxeslabels=False,
-                 zaxis = dict(zeroline=False, showticklabels=False, showgrid=False, showline=False, title = {'text':''}, visible=False),
-                 camera= dict(eye = dict(x=2.0, y=1.0, z=0.5)),
-                 ),
-    showlegend=False,
-    # width = 1000,
-    # height = 1000,
-    autosize = True
-    # annotations = make_annotations(nodes_array, v_label),
-)
+    # add node points
+    nodes_index = np.array(facet_vertices).flatten()
+    nodes_index = np.unique(nodes_index)
+    nodes_name = np.array([entries[each].name for each in nodes_index])
+    nodes_array = np.vstack([qhull_cord[each] for each in nodes_index])
 
-fig = dict(data=data, layout=layout)
-plotly.offline.plot(fig, filename='{fn}.html'.format(fn=chemsys), show_link=False)
+    scatter_vertices = dict(
+        mode = "markers",
+        name = 'nodes',
+        type = "scatter3d",
+        x = nodes_array[:,0], y = nodes_array[:,1], z = nodes_array[:,2],
+        # marker = dict(size=5, color="rgb(106, 90, 205)")
+        marker = dict(size=6, color="rgb(50,50,50)")
+    )
+    data.append(scatter_vertices)
+
+    layout = dict(
+        # title = '<b>Quaternary Phase Diagram</b>',
+        title_x = 0.5,
+        scene = dict(xaxis = dict(zeroline=False, showticklabels=False, showgrid=False, showline=False, title = {'text':''}, visible=False),
+                    yaxis = dict(zeroline=False, showticklabels=False, showgrid=False, showline=False, title = {'text':''}, visible=False),
+                    # visible=False, showaxeslabels=False,
+                    zaxis = dict(zeroline=False, showticklabels=False, showgrid=False, showline=False, title = {'text':''}, visible=False),
+                    camera= dict(eye = dict(x=2.0, y=1.0, z=0.5)),
+                    ),
+        showlegend=False,
+        # width = 1000,
+        # height = 1000,
+        autosize = True
+        # annotations = make_annotations(nodes_array, v_label),
+    )
+
+    fig = dict(data=data, layout=layout)
+    return fig
+
+def main():
+    chemsys = 'Li-Hf-W-Se'
+    entries = REST_local(chemsys)
+    pd = PhaseDiagram(entries)
+    fig = plot_quaternary_pd(pd)
+    plotly.offline.plot(fig, filename='{fn}.html'.format(fn=chemsys), show_link=False, auto_open=False)
+
+if __name__ == "__main__":
+    main()
+    
