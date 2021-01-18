@@ -66,7 +66,7 @@ def plot_envolope(pd):
         name='nodes_stable',
         type="scatter3d",
         x=nodes_stable[:, 0], y=nodes_stable[:, 1], z=nodes_stable[:, 2],
-        marker=dict(size=6, color="rgb(67, 147, 195)")
+        marker=dict(size=6, color="rgb(44,113,147)")
     )
     data.append(scatter_vertices)
 
