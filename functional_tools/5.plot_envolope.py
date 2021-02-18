@@ -3,9 +3,8 @@ import pickle
 from itertools import combinations
 
 import numpy as np
-import pandas
 import plotly
-from pymatgen import Composition, MPRester
+from pymatgen import MPRester
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 
 
@@ -112,7 +111,8 @@ def plot_envolope(pd):
                               showline=False, title={'text': ''}, visible=False),
                    zaxis=dict(zeroline=False, showticklabels=False, showgrid=False,
                               showline=False, title={'text': ''}, visible=False),
-                   camera=dict(eye=dict(x=2.0, y=1.0, z=0.5)),
+                   camera=dict(up=dict(x=0, y=0, z=-1),
+                               eye=dict(x=1, y=1, z=-1))
                    ),
         showlegend=False
     )
