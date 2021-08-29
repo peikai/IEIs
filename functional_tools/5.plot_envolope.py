@@ -130,7 +130,7 @@ def main():
     #     print('{I}/{L}'.format(I=i+1, L=len(chemsys_list)))
 
     # [option] plot a given chemical system
-    chemsys = 'O-Lu-Li'
+    chemsys = 'Be-O-Li'
     entries = REST_local(chemsys)
     pd = PhaseDiagram(entries)
     fig = plot_envolope(pd)
