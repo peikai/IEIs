@@ -4,7 +4,8 @@ import pandas as pd
 from tqdm import tqdm
 from retrying import retry
 import eventlet
-from pymatgen import Composition, Element, MPRester
+from pymatgen.core import Composition, Element
+from pymatgen.ext.matproj import MPRester
 from pymatgen.analysis.phase_diagram import PhaseDiagram, GrandPotentialPhaseDiagram
 
 @retry(stop_max_attempt_number=20)
@@ -53,4 +54,4 @@ key_element = 'Li'
 candidates_dataframe = pd.read_csv('Tables/{element}/tieline_without_solubility_and_gas.csv'.format(element=key_element))
 tqdm.pandas(desc="pandas_apply_process")
 candidates_dataframe.loc[:, 'FullWindow'] = candidates_dataframe.pretty_formula.progress_apply(FullChemicalPotentialWindow, key_element=key_element)
-candidates_dataframe.to_csv('fullwindow.csv', float_format='%.3f', index=False)
+candidates_dataframe.to_csv('Tables/{element}/fullwindow.csv'.format(element=key_element), float_format='%.3f', index=False)
