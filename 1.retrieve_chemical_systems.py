@@ -1,4 +1,4 @@
-from pymatgen import MPRester
+from pymatgen.ext.matproj import MPRester
 import pandas as pd
 
 
@@ -33,4 +33,4 @@ with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
 chemsys_dataframe = pd.DataFrame(chemsys).drop_duplicates()
 
 chemsys_distinct = drop_subset_chemsys(chemsys_dataframe['chemsys'])
-chemsys_distinct.to_csv('chemsys_distinct.csv', header=['chemsys'], index=False)
+chemsys_distinct.to_csv('Tables/{element}/chemsys_distinct.csv'.format(element=key_element), header=['chemsys'], index=False)

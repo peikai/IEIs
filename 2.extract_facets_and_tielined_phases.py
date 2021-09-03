@@ -1,10 +1,12 @@
-from pymatgen import MPRester, Composition
-from pymatgen.analysis.phase_diagram import PhaseDiagram
+import sys
+import eventlet
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
+from pymatgen.analysis.phase_diagram import PhaseDiagram
+from pymatgen.core import Composition
+from pymatgen.ext.matproj import MPRester
 from retrying import retry
-import eventlet
+from tqdm import tqdm
 
 
 def tieline_phases(phaseDiagram, key_element):
@@ -33,7 +35,7 @@ def tieline_phases(phaseDiagram, key_element):
 
 @retry(stop_max_attempt_number=20)
 def get_phase_diagram_in_chemsys(chemsys):
-    eventlet.monkey_patch() 
+    eventlet.monkey_patch()
     with eventlet.Timeout(seconds=120, exception=True) as timeout:
         with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
             # using GGA and GGA+U mixed scheme as default, namely compatible_only=True
@@ -57,7 +59,7 @@ for chemsys in tqdm(chemsys_list, total=len(chemsys_list)):
 
 # save simplexes to make statistics.
 facet_dataframe = pd.DataFrame(facet_entries)
-facet_dataframe.drop_duplicates().to_csv('facets_distinct.csv', index=False)
+facet_dataframe.drop_duplicates().to_csv('Tables/{element}/facets_distinct.csv'.format(element=key_element), index=False)
 # save phases have a tie-line with the key phase, like Li_BCC.
 tieline_dataframe = pd.DataFrame(tieline_entries)
-tieline_dataframe.drop_duplicates().to_csv('tieline_distinct.csv', index=False)
+tieline_dataframe.drop_duplicates().to_csv('Tables/{element}/tieline_distinct.csv'.format(element=key_element), index=False)
