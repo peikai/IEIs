@@ -1,21 +1,21 @@
 import pandas as pd
-from pymatgen import Composition, Element, MPRester
+from pymatgen.core import Composition, Element
+from pymatgen.ext.matproj import MPRester
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from retrying import retry
-import eventlet
 from tqdm import tqdm
+import timeout_decorator
 
 
 @retry(stop_max_attempt_number=20)
+@timeout_decorator.timeout(200)
 def recheck_e_above_hull(material_id, key_element):
-    eventlet.monkey_patch() 
-    with eventlet.Timeout(seconds=120, exception=True) as timeout:
-        with MPRester(api_key='7F7ezXky4RsUOimpr') as mpr:
-            entry = mpr.get_entry_by_material_id(material_id)
-            pretty_formula = entry.name
-            chemsys = Composition(pretty_formula).chemical_system + '-' + key_element
-            # using GGA and GGA+U mixed scheme as default, namely compatible_only=True
-            entries = mpr.get_entries_in_chemsys(chemsys)
+    with MPRester(api_key='7F7ezXky4RsUOimpr') as mpr:
+        entry = mpr.get_entry_by_material_id(material_id)
+        pretty_formula = entry.name
+        chemsys = Composition(pretty_formula).chemical_system + '-' + key_element
+        # using GGA and GGA+U mixed scheme as default, namely compatible_only=True
+        entries = mpr.get_entries_in_chemsys(chemsys)
     
     phase_diagram = PhaseDiagram(entries)
     e_above_hull = phase_diagram.get_e_above_hull(entry)
