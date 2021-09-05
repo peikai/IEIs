@@ -42,7 +42,7 @@ def FullChemicalPotentialWindow(target_phase, key_element):
     return(False not in boolean_list)
 
 
-key_element = 'K'
+key_element = 'Li'
 
 # [option-1] only verify candidates
 # candidates_dataframe = pd.read_csv('Tables/{element}/candidates.csv'.format(element=key_element))
