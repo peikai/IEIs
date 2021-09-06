@@ -1,4 +1,9 @@
 # Searching of Ion and Electron Insulators
-See details in the paper "Electrochemically Stable Lithium-ion and Electron Insulators (LEIs) for Solid-State Batteries" in the journal of Nano Research.
+See details in this paper
 
-[![DOI](https://zenodo.org/badge/228514002.svg)](https://zenodo.org/badge/latestdoi/228514002)
+> Pei, K., Kim, S.Y. & Li, J. Electrochemically stable lithium-ion and electron insulators (LEIs) for solid-state batteries. Nano Res. (2021). https://doi.org/10.1007/s12274-021-3627-1
+
+## How to cite
+If this repository facilates your research, a citation is expected.
+
+[![DOI](https://zenodo.org/badge/228514002.svg)](https://zenodo.org/badge/latestdoi/228514002) 
