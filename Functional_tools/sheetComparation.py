@@ -10,8 +10,8 @@ import pandas as pd
 # set1 = pd.read_csv('Archive-2020.11.21/tables/Merged/candidates_all_K.csv', usecols=['material_id', 'pretty_formula'])
 # set2 = pd.read_csv('Tables/K/candidates.csv', usecols=['material_id', 'pretty_formula'])
 
-set1 = pd.read_csv('Tables\set_intersection_LEI&KEI.csv', float_precision='round_trip')
-set2 = pd.read_csv('Tables\set_intersection_LEI&NEI.csv', float_precision='round_trip')
+set1 = pd.read_csv('Tables/set_intersection_LEI&KEI.csv', float_precision='round_trip')
+set2 = pd.read_csv('Tables/set_intersection_LEI&NEI.csv', float_precision='round_trip')
 
 # A U B - A ∩ B
 set_difference = pd.merge(set1, set2, how='outer')
