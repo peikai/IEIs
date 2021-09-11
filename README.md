@@ -16,7 +16,9 @@ It is used to construct phase diagram for chemical systems, and extract the face
 
 ### 3.screen_with_solubility_and_bandgap_criteria.py
 
-It is used to further screen the phases subsequent to the program above, to exclude the phases that have dissolved atoms of the specified element in their lattice structure, and thereby make the candidates not only have thermodynamically stable contact with the specified alkali-metals, but also do not have solubility of them. In addition, this program will remove noble gases and pick up phases with the bandgap larger than 3 eV. Considering the calculation with PBE exchange-correlation functions usually underestimate the bandgap, it is large enough to find electronic insulators.
+It is used to further screen the phases subsequent to the program above, to exclude the phases that have dissolved atoms of the specified element in their lattice structure, and thereby make the candidates not only have thermodynamically stable contact with the specified alkali-metals, but also do not have solubility of them. This property will ensure the candidates have electrochemical stability at the entire range of the chemical potential.
+
+In addition, this program will remove noble gases and pick up phases with the bandgap larger than 3 eV. Considering the calculations with PBE exchange-correlation functions usually [underestimate the bandgap by about 40%](https://wiki.materialsproject.org/Calculations_Manual#Accuracy_of_Band_Structures), it is large enough to find electronic insulators.
 
 ## How to cite
 If this repository facilitates your research, a citation is expected.
