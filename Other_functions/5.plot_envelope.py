@@ -4,7 +4,7 @@ from itertools import combinations
 
 import numpy as np
 import plotly
-from pymatgen import MPRester
+from pymatgen.ext.matproj import MPRester
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 
 
@@ -34,7 +34,7 @@ def REST_local(chemsys):
     return entries
 
 
-def plot_envolope(pd):
+def plot_envelope(pd):
     # get original qhull data
     qhull_data = pd.qhull_data
     # an extra point exists in original pd.qhull_data, drop it
@@ -98,7 +98,7 @@ def plot_envolope(pd):
         convex_lines = plotly_lines(edge_copy, dash='solid', width=4)
         data.append(convex_lines)
 
-    # plot potential-energy envolope, see https://plotly.com/python/3d-mesh/
+    # plot potential-energy envelope, see https://plotly.com/python/3d-mesh/
     x, y, z = qhull_data.T
     i, j, k = np.array(facet_vertices).T
     hull = plotly_hulls(x, y, z, i, j, k, color='rgb(146,197,222)')
@@ -126,14 +126,14 @@ def main():
     # pretty_formula_list = pandas.read_csv('tables/Li/candidates.csv').pretty_formula.to_list()
     # chemsys_list = [Composition(each).chemical_system+'-Li' for each in pretty_formula_list if len(Composition(each).elements)==2]
     # for i, chemsys in enumerate(chemsys_list):
-    #     plot_envolope(chemsys)
+    #     plot_envelope(chemsys)
     #     print('{I}/{L}'.format(I=i+1, L=len(chemsys_list)))
 
     # [option] plot a given chemical system
     chemsys = 'Be-O-Li'
     entries = REST_local(chemsys)
     pd = PhaseDiagram(entries)
-    fig = plot_envolope(pd)
+    fig = plot_envelope(pd)
     plotly.offline.plot(fig, filename='{fn}.html'.format(
         fn=chemsys), show_link=False, auto_open=False)
 
