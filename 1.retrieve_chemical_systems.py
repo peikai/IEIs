@@ -28,7 +28,7 @@ def drop_subset_chemsys(chemsys_series):
 
 key_element = 'Li'
 
-with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
+with MPRester(api_key='') as mpr:
     chemsys = mpr.query(criteria={'elements':{'$in':[key_element]}}, properties=['chemsys'])
 chemsys_dataframe = pd.DataFrame(chemsys).drop_duplicates()
 
