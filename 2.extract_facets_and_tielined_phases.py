@@ -36,7 +36,7 @@ def tieline_phases(phaseDiagram, key_element):
 def get_phase_diagram_in_chemsys(chemsys):
     eventlet.monkey_patch()
     with eventlet.Timeout(seconds=120, exception=True) as timeout:
-        with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
+        with MPRester(api_key='') as mpr:
             # using GGA and GGA+U mixed scheme as default, namely compatible_only=True
             entries = mpr.get_entries_in_chemsys(chemsys)
             
