@@ -41,6 +41,6 @@ This program can help to construct a ternary phase diagram.
 Colormap of plolty, dataframe to html convertor, etc
 
 ## How to cite
-If this repository facilitates your research, a citation is expected to make peers easy to find source codes.
+If this repository facilitates your research, a citation is expected to broadcast it to help more peers.
 
 [![DOI](https://zenodo.org/badge/228514002.svg)](https://zenodo.org/badge/latestdoi/228514002) 
