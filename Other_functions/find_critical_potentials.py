@@ -9,7 +9,7 @@ key_element = 'Li'
 target_phase = 'BeO'
 
 chemsys = key_element + '-' + Composition(target_phase).chemical_system
-with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
+with MPRester(api_key='') as mpr:
     entries = mpr.get_entries_in_chemsys(chemsys)
 
 pd = PhaseDiagram(entries)

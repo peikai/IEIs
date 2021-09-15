@@ -13,7 +13,7 @@ def FullChemicalPotentialWindow(target_phase, key_element):
     chemsys = key_element + '-' + Composition(target_phase).chemical_system
     eventlet.monkey_patch()
     with eventlet.Timeout(seconds=120, exception=True) as timeout:
-        with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
+        with MPRester(api_key='') as mpr:
             entries = mpr.get_entries_in_chemsys(chemsys)
     
     pd_closed = PhaseDiagram(entries)

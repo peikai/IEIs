@@ -60,7 +60,7 @@ def makeAxis(title, tickangle):
 
 def REST_local(chemsys):
     if not os.path.exists('Temp/entries_{v}.pickle'.format(v=chemsys)):
-        with MPRester(api_key='25wZTKoyHkvhXFfO') as mpr:
+        with MPRester(api_key='') as mpr:
             entries = mpr.get_entries_in_chemsys(chemsys)
         with open('Temp/entries_{v}.pickle'.format(v=chemsys), 'wb') as entries_local:
             pickle.dump(entries, entries_local)
