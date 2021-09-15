@@ -10,7 +10,7 @@ import timeout_decorator
 @retry(stop_max_attempt_number=20)
 @timeout_decorator.timeout(200)
 def recheck_e_above_hull(material_id, key_element):
-    with MPRester(api_key='7F7ezXky4RsUOimpr') as mpr:
+    with MPRester(api_key='') as mpr:
         entry = mpr.get_entry_by_material_id(material_id)
         pretty_formula = entry.name
         chemsys = Composition(pretty_formula).chemical_system + '-' + key_element
@@ -41,7 +41,7 @@ vanishing_solubility_phases_dataframe.to_csv('Tables/{element}/tieline_without_s
 
 # pick up those phases with band gap >= 3eV
 material_id_list = vanishing_solubility_phases_dataframe['material_id'].to_list()
-with MPRester(api_key='7F7ezXky4RsUOimpr') as mpr:
+with MPRester(api_key='') as mpr:
     # entry id is an alias of task id
     candidates = mpr.query(criteria={'task_id':{'$in': material_id_list}, 'band_gap':{'$gte':3.0}}, properties=['material_id', 'pretty_formula', 'theoretical', 'band_gap', 'density', 'e_above_hull', 'icsd_ids'])
 
