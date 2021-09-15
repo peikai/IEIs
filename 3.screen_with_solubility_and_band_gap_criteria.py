@@ -1,21 +1,21 @@
 import pandas as pd
-from pymatgen import Composition, Element, MPRester
+from pymatgen.core import Composition, Element
+from pymatgen.ext.matproj import MPRester
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from retrying import retry
-import eventlet
 from tqdm import tqdm
+import timeout_decorator
 
 
 @retry(stop_max_attempt_number=20)
+@timeout_decorator.timeout(200)
 def recheck_e_above_hull(material_id, key_element):
-    eventlet.monkey_patch() 
-    with eventlet.Timeout(seconds=120, exception=True) as timeout:
-        with MPRester(api_key='7F7ezXky4RsUOimpr') as mpr:
-            entry = mpr.get_entry_by_material_id(material_id)
-            pretty_formula = entry.name
-            chemsys = Composition(pretty_formula).chemical_system + '-' + key_element
-            # using GGA and GGA+U mixed scheme as default, namely compatible_only=True
-            entries = mpr.get_entries_in_chemsys(chemsys)
+    with MPRester(api_key='') as mpr:
+        entry = mpr.get_entry_by_material_id(material_id)
+        pretty_formula = entry.name
+        chemsys = Composition(pretty_formula).chemical_system + '-' + key_element
+        # using GGA and GGA+U mixed scheme as default, namely compatible_only=True
+        entries = mpr.get_entries_in_chemsys(chemsys)
     
     phase_diagram = PhaseDiagram(entries)
     e_above_hull = phase_diagram.get_e_above_hull(entry)
@@ -27,7 +27,7 @@ def recheck_e_above_hull(material_id, key_element):
 
 
 key_element = 'Li'
-tieline_dataframe = pd.read_csv('tables/{element}/tieline_distinct.csv'.format(element=key_element))
+tieline_dataframe = pd.read_csv('Tables/{element}/tieline_distinct.csv'.format(element=key_element))
 
 # remove noble gas
 boolean_gas = tieline_dataframe.pretty_formula.apply(lambda x : True not in [e.is_noble_gas for e in Composition(x).elements])
@@ -37,11 +37,11 @@ no_nobel_gas_dataframe = tieline_dataframe[boolean_gas]
 boolean_element = no_nobel_gas_dataframe.pretty_formula.apply(lambda x : Element(key_element) not in Composition(x).elements)
 vanishing_solubility_phases_dataframe = no_nobel_gas_dataframe[boolean_element]
 vanishing_solubility_phases_dataframe.reset_index(drop=True, inplace=True)
-vanishing_solubility_phases_dataframe.to_csv('tieline_without_solubility_and_gas.csv', index=False)
+vanishing_solubility_phases_dataframe.to_csv('Tables/{element}/tieline_without_solubility_and_gas.csv'.format(element=key_element), index=False)
 
 # pick up those phases with band gap >= 3eV
 material_id_list = vanishing_solubility_phases_dataframe['material_id'].to_list()
-with MPRester(api_key='7F7ezXky4RsUOimpr') as mpr:
+with MPRester(api_key='') as mpr:
     # entry id is an alias of task id
     candidates = mpr.query(criteria={'task_id':{'$in': material_id_list}, 'band_gap':{'$gte':3.0}}, properties=['material_id', 'pretty_formula', 'theoretical', 'band_gap', 'density', 'e_above_hull', 'icsd_ids'])
 
@@ -57,4 +57,4 @@ candidates_dataframe['e_above_hull'] = candidates_dataframe.material_id.progress
 candidates_dataframe = candidates_dataframe.round({'band_gap':3,'density':3,'e_above_hull':3})
 # sort with band gap order, in the meanwhile, make experimental structures shown on top
 candidates_dataframe.sort_values(by=['theoretical', 'band_gap'], ascending=[True, False], inplace=True)
-candidates_dataframe.to_csv('candidates.csv', float_format='%.3f', index=False)
+candidates_dataframe.to_csv('Tables/{element}/candidates.csv'.format(element=key_element), float_format='%.3f', index=False)
