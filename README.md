@@ -20,7 +20,7 @@ This program is used to exclude those phases that have dissolved specified atoms
 
 In addition, this program will remove noble gases and pick up phases with bandgap larger than 3 eV. Considering the calculations with PBE exchange-correlation functions usually [underestimate the bandgap by about 40%](https://wiki.materialsproject.org/Calculations_Manual#Accuracy_of_Band_Structures), we presumed that it is large enough to find electronic insulators.
 
-### 4.verify_full_stability_window.py (in Functional_tools directory)
+### 4.verify_full_stability_window.py (in Other_functions directory)
 
 For the phases in list above, this program can check the stability window in terms of the specified chemical potential, like the Li potential. Every phase with the stability on the entire chemical potential window will be tagged with "FullWindow" is "True".
 
