@@ -1,7 +1,8 @@
 
 import numpy as np
 import pandas as pd
-from pymatgen import Composition, Element, MPRester
+from pymatgen.core import Composition, Element
+from pymatgen.ext.matproj import MPRester
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 
 

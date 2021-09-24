@@ -1,5 +1,5 @@
 import pandas as pd
-from pymatgen import Element, Composition
+from pymatgen.core import Element, Composition
 
 def metals_only(phase):
     elements_list = Composition(phase).elements
