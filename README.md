@@ -41,7 +41,7 @@ This program can help to construct a ternary phase diagram.
 Colormap of plolty, dataframe to html convertor, etc
 
 ## How to cite
-If this repository facilitates your research, a citation is expected to broadcast its usefulness and help more peers.
+If this repository facilitates your research, a citation is expected to link source codes and broadcast its usefulness to more peers.
 
 > Kai Pei. (2021). peikai/IEIs: Release 2.0 (v2.0). Zenodo. https://doi.org/10.5281/zenodo.5509377
 
