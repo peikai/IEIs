@@ -1,5 +1,5 @@
-from pymatgen.ext.matproj import MPRester
 import pandas as pd
+from pymatgen.ext.matproj import MPRester
 
 
 def drop_subset_chemsys(chemsys_series):

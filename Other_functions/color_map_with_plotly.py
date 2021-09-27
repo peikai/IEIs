@@ -1,7 +1,6 @@
-import plotly
-import plotly.graph_objects as go
-import random
 import itertools
+
+import plotly
 
 colors = ['aliceblue','antiquewhite','aqua','aquamarine','azure','beige','bisque','black','blanchedalmond',
 'blue','blueviolet','brown','burlywood','cadetblue','chartreuse','chocolate','coral','cornflowerblue',

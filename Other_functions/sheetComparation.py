@@ -1,4 +1,4 @@
-import pandas as pd 
+import pandas as pd
 
 # Compare any couple of two sets
 # to obtain the intersection set, difference set 

@@ -1,14 +1,13 @@
 import os
 import pickle
+
+import numpy as np
+import pandas
+import plotly
+import plotly.graph_objects as go
+from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.core import Composition
 from pymatgen.ext.matproj import MPRester
-from pymatgen.analysis.phase_diagram import PhaseDiagram
-import numpy as np
-
-import plotly
-
-import pandas
-import plotly.graph_objects as go
 
 
 def plotly_ternary_lines(dataframe):

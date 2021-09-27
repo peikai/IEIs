@@ -4,8 +4,8 @@ from itertools import combinations
 
 import numpy as np
 import plotly
-from pymatgen.ext.matproj import MPRester
 from pymatgen.analysis.phase_diagram import PhaseDiagram
+from pymatgen.ext.matproj import MPRester
 
 
 def plotly_lines(line_nodes, dash, width):
@@ -23,13 +23,13 @@ def plotly_hulls(x, y, z, i, j, k, color):
 
 
 def REST_local(chemsys):
-    if not os.path.exists('temp/entries_{v}.pickle'.format(v=chemsys)):
+    if not os.path.exists('Temp/entries_{v}.pickle'.format(v=chemsys)):
         with MPRester(api_key='') as mpr:
             entries = mpr.get_entries_in_chemsys(chemsys)
-        with open('temp/entries_{v}.pickle'.format(v=chemsys), 'wb') as entries_local:
+        with open('Temp/entries_{v}.pickle'.format(v=chemsys), 'wb') as entries_local:
             pickle.dump(entries, entries_local)
     else:
-        with open('temp/entries_{v}.pickle'.format(v=chemsys), 'rb') as entries_temp:
+        with open('Temp/entries_{v}.pickle'.format(v=chemsys), 'rb') as entries_temp:
             entries = pickle.load(entries_temp)
     return entries
 

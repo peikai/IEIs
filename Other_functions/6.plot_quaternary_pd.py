@@ -1,13 +1,14 @@
-from pymatgen import Composition
-from pymatgen import MPRester, Composition
-from pymatgen.analysis.phase_diagram import PhaseDiagram, tet_coord
-import numpy as np
-import plotly
 import os
 import pickle
-from scipy.spatial import ConvexHull
 from itertools import combinations
+
+import numpy as np
+import plotly
 from plotly.express.colors import qualitative as palette
+from pymatgen.analysis.phase_diagram import PhaseDiagram, tet_coord
+from pymatgen.core import Composition
+from pymatgen.ext.matproj import MPRester
+from scipy.spatial import ConvexHull
 
 
 def plotly_polyhedron(polyhedron, color):
@@ -41,13 +42,13 @@ def tieline_phases(phaseDiagram, key_element):
 
 
 def REST_local(chemsys):
-    if not os.path.exists('temp/entries_{v}.pickle'.format(v=chemsys)):
+    if not os.path.exists('Temp/entries_{v}.pickle'.format(v=chemsys)):
         with MPRester(api_key='') as mpr:
             entries = mpr.get_entries_in_chemsys(chemsys)
-        with open('temp/entries_{v}.pickle'.format(v=chemsys), 'wb') as entries_local:
+        with open('Temp/entries_{v}.pickle'.format(v=chemsys), 'wb') as entries_local:
             pickle.dump(entries, entries_local)
     else:
-        with open('temp/entries_{v}.pickle'.format(v=chemsys), 'rb') as entries_temp:
+        with open('Temp/entries_{v}.pickle'.format(v=chemsys), 'rb') as entries_temp:
             entries = pickle.load(entries_temp)
     return entries
 

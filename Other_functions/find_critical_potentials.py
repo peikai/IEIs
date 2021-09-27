@@ -1,10 +1,8 @@
-
 import numpy as np
 import pandas as pd
+from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.core import Composition, Element
 from pymatgen.ext.matproj import MPRester
-from pymatgen.analysis.phase_diagram import PhaseDiagram
-
 
 key_element = 'Li'
 target_phase = 'BeO'
