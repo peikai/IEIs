@@ -1,14 +1,14 @@
 import pandas as pd
+import timeout_decorator
+from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.core import Composition, Element
 from pymatgen.ext.matproj import MPRester
-from pymatgen.analysis.phase_diagram import PhaseDiagram
 from retrying import retry
 from tqdm import tqdm
-import timeout_decorator
 
 
 @retry(stop_max_attempt_number=20)
-@timeout_decorator.timeout(200)
+@timeout_decorator.timeout(300)
 def recheck_e_above_hull(material_id, key_element):
     with MPRester(api_key='') as mpr:
         entry = mpr.get_entry_by_material_id(material_id)

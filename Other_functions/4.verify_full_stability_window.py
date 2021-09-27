@@ -1,20 +1,19 @@
-
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
-from retrying import retry
-import eventlet
+from pymatgen.analysis.phase_diagram import (GrandPotentialPhaseDiagram,
+                                             PhaseDiagram)
 from pymatgen.core import Composition, Element
 from pymatgen.ext.matproj import MPRester
-from pymatgen.analysis.phase_diagram import PhaseDiagram, GrandPotentialPhaseDiagram
+from retrying import retry
+from tqdm import tqdm
+
 
 @retry(stop_max_attempt_number=20)
+@timeout_decorator.timeout(300)
 def FullChemicalPotentialWindow(target_phase, key_element):
     chemsys = key_element + '-' + Composition(target_phase).chemical_system
-    eventlet.monkey_patch()
-    with eventlet.Timeout(seconds=120, exception=True) as timeout:
-        with MPRester(api_key='') as mpr:
-            entries = mpr.get_entries_in_chemsys(chemsys)
+    with MPRester(api_key='') as mpr:
+        entries = mpr.get_entries_in_chemsys(chemsys)
     
     pd_closed = PhaseDiagram(entries)
     transition_chempots = pd_closed.get_transition_chempots(Element(key_element))

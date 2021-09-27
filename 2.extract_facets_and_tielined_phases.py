@@ -1,4 +1,3 @@
-import eventlet
 import numpy as np
 import pandas as pd
 from pymatgen.analysis.phase_diagram import PhaseDiagram
@@ -33,12 +32,11 @@ def tieline_phases(phaseDiagram, key_element):
 
 
 @retry(stop_max_attempt_number=20)
+@timeout_decorator.timeout(300)
 def get_phase_diagram_in_chemsys(chemsys):
-    eventlet.monkey_patch()
-    with eventlet.Timeout(seconds=120, exception=True) as timeout:
-        with MPRester(api_key='') as mpr:
-            # using GGA and GGA+U mixed scheme as default, namely compatible_only=True
-            entries = mpr.get_entries_in_chemsys(chemsys)
+    with MPRester(api_key='') as mpr:
+        # using GGA and GGA+U mixed scheme as default, namely compatible_only=True
+        entries = mpr.get_entries_in_chemsys(chemsys)
             
     phase_diagram = PhaseDiagram(entries)
     return phase_diagram
