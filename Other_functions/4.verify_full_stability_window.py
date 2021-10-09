@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import timeout_decorator
 from pymatgen.analysis.phase_diagram import (GrandPotentialPhaseDiagram,
                                              PhaseDiagram)
 from pymatgen.core import Composition, Element
