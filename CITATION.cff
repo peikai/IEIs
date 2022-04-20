@@ -1,0 +1,56 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: IEIs
+message: >-
+  This repository was used to perform high-throughput
+  screening on ion-electron insulators (IEIs). If the
+  codes also facilitate your work, a citation to
+  the linked research article is preferred.
+type: software
+version: 2.1
+doi: 10.5281/zenodo.6472078
+date-released: 2022.4.20
+url: "https://github.com/peikai/IEIs"
+authors:
+  - given-names: Kai
+    family-names: Pei
+    email: peikai@outlook.com
+    affiliation: >-
+      Frontier Institute of Science and Technology,
+      Xi'an Jiaotong University; Department of
+      Materials Science and Engineering and
+      Department of Nuclear Science and Engineering,
+      Massachusetts Institute of Technology
+  - given-names: So Yeon
+    family-names: Kim
+    email: sokim@mit.edu
+    affiliation: >-
+      Department of Materials Science and Engineering
+      and Department of Nuclear Science and
+      Engineering, Massachusetts Institute of
+      Technology
+  - given-names: Ju
+    family-names: Li
+    affiliation: >-
+      Department of Materials Science and Engineering
+      and Department of Nuclear Science and
+      Engineering, Massachusetts Institute of
+      Technology
+    email: liju@mit.edu
+preferred-citation:
+  type: article
+  authors:
+  - family-names: Pei
+    given-names: Kai
+  - family-names: Kim
+    given-names: So Yeon
+  journal: Nano Research
+  doi: 10.1007/s12274-021-3627-1
+  start: 1213
+  end: 1220
+  title: Electrochemically stable lithium-ion and electron insulators (LEIs) for solid-state batteries
+  issue: 2
+  volume: 15
+  year: 2022
