@@ -1,6 +1,3 @@
-# This CITATION.cff file was generated with cffinit.
-# Visit https://bit.ly/cffinit to generate yours today!
-
 cff-version: 1.2.0
 title: IEIs
 message: >-
@@ -14,35 +11,15 @@ authors:
   - given-names: Kai
     family-names: Pei
     email: peikai@outlook.com
-    affiliation: >-
-      Frontier Institute of Science and Technology,
-      Xi'an Jiaotong University; Department of
-      Materials Science and Engineering and
-      Department of Nuclear Science and Engineering,
-      Massachusetts Institute of Technology
-  - given-names: So Yeon
-    family-names: Kim
-    email: sokim@mit.edu
-    affiliation: >-
-      Department of Materials Science and Engineering
-      and Department of Nuclear Science and
-      Engineering, Massachusetts Institute of
-      Technology
-  - given-names: Ju
-    family-names: Li
-    affiliation: >-
-      Department of Materials Science and Engineering
-      and Department of Nuclear Science and
-      Engineering, Massachusetts Institute of
-      Technology
-    email: liju@mit.edu
 preferred-citation:
   type: article
   authors:
-  - family-names: Pei
-    given-names: Kai
-  - family-names: Kim
-    given-names: So Yeon
+  - given-names: Kai
+    family-names: Pei
+  - given-names: So Yeon
+    family-names: Kim
+  - given-names: Ju
+    family-names: Li
   journal: Nano Research
   doi: 10.1007/s12274-021-3627-1
   start: 1213
