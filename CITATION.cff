@@ -4,10 +4,7 @@
 cff-version: 1.2.0
 title: IEIs
 message: >-
-  This repository was used to perform high-throughput
-  screening on ion-electron insulators (IEIs). If the
-  codes also facilitate your work, a citation to
-  the linked research article is preferred.
+  If the codes facilitate your work, please cite both the research article from preferred-citation and the codes itself.
 type: software
 version: 2.1
 doi: 10.5281/zenodo.6472078
