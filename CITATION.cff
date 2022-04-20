@@ -11,7 +11,7 @@ message: >-
 type: software
 version: 2.1
 doi: 10.5281/zenodo.6472078
-date-released: 2022.4.20
+date-released: 2022-04-20
 url: "https://github.com/peikai/IEIs"
 authors:
   - given-names: Kai
