@@ -1,4 +1,5 @@
 # Searching for Ion and Electron Insulators
+[![DOI](https://zenodo.org/badge/228514002.svg)](https://zenodo.org/badge/latestdoi/228514002) 
 
 We would like to introduce three types of *ion and electron insulators*, i.e. *Li-ion & electron insulators* (LEIs), *Na-ion & electron insulators* (NEIs), and *K-ion & electron insulators* (KEIs), and provide a set of codes here to screen candidate materials from computational material database, [Materials Project](https://materialsproject.org). The IEI materials are able to block the transport of multiple charge carriers (ions and electrons) and stay thermodynamically stable against specific alkali-metals. This kind of materials had been adopted in rechargeable solid-state Li/Na/K metal batteries in our work below.
 
@@ -41,8 +42,4 @@ This program can help to construct a ternary phase diagram.
 Colormap of plolty, dataframe to html convertor, etc
 
 ## Cite this repository
-If this repository facilitates your research, please cite both the linked article and the codes itself to broadcast them to peers.
-
-> Kai Pei. (2021). peikai/IEIs: Release 2.1 (v2.1). Zenodo. https://doi.org/10.5281/zenodo.6472078
-
-[![DOI](https://zenodo.org/badge/228514002.svg)](https://zenodo.org/badge/latestdoi/228514002) 
+If the codes facilitate your work, please cite both the linked research article and the codes itself. See info in CITATION.cff file.
