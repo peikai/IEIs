@@ -4,7 +4,7 @@ message: >-
   If the codes facilitate your work, please cite both the research article from preferred-citation and the codes itself.
 type: software
 version: 2.1
-doi: 10.5281/zenodo.6472078
+doi: 10.5281/zenodo.6475023
 date-released: 2022-04-20
 url: "https://github.com/peikai/IEIs"
 authors:
