@@ -1,7 +1,7 @@
 # Searching for Ion and Electron Insulators
 [![DOI](https://zenodo.org/badge/228514002.svg)](https://zenodo.org/badge/latestdoi/228514002) 
 
-We would like to introduce three types of *ion and electron insulators*, i.e. *Li-ion & electron insulators* (LEIs), *Na-ion & electron insulators* (NEIs), and *K-ion & electron insulators* (KEIs), and provide a set of codes here to screen candidate materials from computational material database, [Materials Project](https://materialsproject.org). The IEI materials are able to block the transport of multiple charge carriers (ions and electrons) and stay thermodynamically stable against specific alkali-metals. This kind of materials had been adopted in rechargeable solid-state Li/Na/K metal batteries in our work below.
+We would like to introduce three types of *ion and electron insulators*, i.e. *Li-ion & electron insulators* (LEIs), *Na-ion & electron insulators* (NEIs), and *K-ion & electron insulators* (KEIs), and provide a set of codes here to screen candidate materials from computational material database, [Materials Project](https://materialsproject.org). The IEI materials are able to block the transport of multiple charge carriers (ions and electrons) and stay thermodynamically stable against specific alkali-metals. The screening workflows and usage of IEI materials in rechargeable solid-state Li/Na/K metal batteries are presented in the paper below.
 
 > Pei, K., Kim, S.Y. & Li, J. Electrochemically stable lithium-ion and electron insulators (LEIs) for solid-state batteries. Nano Res. (2021). https://doi.org/10.1007/s12274-021-3627-1
 
